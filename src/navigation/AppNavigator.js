@@ -11,6 +11,11 @@ import LoadingOverlay from '../components/LoadingOverlay';
 import LoginScreen from '../screens/auth/LoginScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+// Anak screens
+import ChildrenListScreen from '../screens/children/ChildrenListScreen';
+import ChildDetailScreen from '../screens/children/ChildDetailScreen';
+import ChildFormScreen from '../screens/children/ChildFormScreen';
+
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
 import { api } from '../api';
 
@@ -68,6 +73,35 @@ const AppNavigator = () => {
             <Stack.Screen 
               name="Profile" 
               component={ProfileScreen}
+              options={{
+                animation: 'slide_from_right',
+              }}
+            />
+            {/* Anak screens */}
+            <Stack.Screen 
+              name="ChildrenList" 
+              component={ChildrenListScreen}
+              options={{
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen 
+              name="ChildDetail" 
+              component={ChildDetailScreen}
+              options={{
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen 
+              name="AddChild" 
+              component={ChildFormScreen}
+              options={{
+                animation: 'slide_from_bottom',
+              }}
+            />
+            <Stack.Screen 
+              name="EditChild" 
+              component={ChildFormScreen}
               options={{
                 animation: 'slide_from_right',
               }}
