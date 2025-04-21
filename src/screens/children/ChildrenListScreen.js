@@ -15,6 +15,7 @@ import { fetchChildren, deleteChild, resetChildrenState } from '../../redux/slic
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import { IMAGE_BASE_URL } from '../../utils/constants';
+import { formatBirthDate, calculateAge } from '../../utils/dateUtils'; // Import dari dateUtils
 
 const ChildrenListScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -104,6 +105,9 @@ const ChildrenListScreen = ({ navigation }) => {
           <Text style={styles.childDetail}>
             {item.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}, {calculateAge(item.tanggal_lahir)} tahun
           </Text>
+          <Text style={styles.childDetail}>
+            Lahir: {formatBirthDate(item.tanggal_lahir)}
+          </Text>
           <Text style={styles.childStatus}>
             Status: <Text style={getStatusStyle(item.status_validasi)}>{item.status_validasi}</Text>
           </Text>
@@ -126,19 +130,6 @@ const ChildrenListScreen = ({ navigation }) => {
       </View>
     </TouchableOpacity>
   );
-
-  const calculateAge = (dateOfBirth) => {
-    const birthDate = new Date(dateOfBirth);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    
-    return age;
-  };
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -213,6 +204,10 @@ const ChildrenListScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
+
+// ... styles remains the same ...
+
+export default ChildrenListScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -388,4 +383,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChildrenListScreen;

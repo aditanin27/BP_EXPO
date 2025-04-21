@@ -14,6 +14,7 @@ import { fetchChildById, deleteChild, resetChildrenState } from '../../redux/sli
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import { IMAGE_BASE_URL } from '../../utils/constants';
+import { formatBirthDate, calculateAge } from '../../utils/dateUtils'; // Import dari dateUtils
 
 const ChildDetailScreen = ({ route, navigation }) => {
   const { childId } = route.params;
@@ -31,32 +32,6 @@ const ChildDetailScreen = ({ route, navigation }) => {
       navigation.goBack();
     }
   }, [deleteSuccess, dispatch, navigation]);
-
-  const calculateAge = (dateOfBirth) => {
-    if (!dateOfBirth) return '';
-    
-    const birthDate = new Date(dateOfBirth);
-    const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    
-    return `${age} tahun`;
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    });
-  };
 
   const handleEdit = () => {
     navigation.navigate('EditChild', { childId });
@@ -170,9 +145,9 @@ const ChildDetailScreen = ({ route, navigation }) => {
           />
           <InfoRow 
             label="Tempat, Tgl Lahir" 
-            value={`${selectedChild.tempat_lahir}, ${formatDate(selectedChild.tanggal_lahir)}`} 
+            value={`${selectedChild.tempat_lahir}, ${formatBirthDate(selectedChild.tanggal_lahir)}`} 
           />
-          <InfoRow label="Usia" value={calculateAge(selectedChild.tanggal_lahir)} />
+          <InfoRow label="Usia" value={`${calculateAge(selectedChild.tanggal_lahir)} tahun`} />
           <InfoRow label="Agama" value={selectedChild.agama} />
           <InfoRow label="Anak ke" value={`${selectedChild.anak_ke || '-'} dari ${selectedChild.dari_bersaudara || '-'} bersaudara`} />
           <InfoRow label="Tinggal bersama" value={selectedChild.tinggal_bersama || '-'} />
@@ -236,6 +211,10 @@ const InfoRow = ({ label, value, valueStyle }) => (
     <Text style={[styles.infoValue, valueStyle]}>{value}</Text>
   </View>
 );
+
+// ... styles remains the same ...
+
+export default ChildDetailScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -361,4 +340,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChildDetailScreen;
