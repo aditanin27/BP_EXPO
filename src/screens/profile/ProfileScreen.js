@@ -1,15 +1,17 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchProfile } from '../../redux/slices/profileSlice';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import Button from '../../components/Button';
-import { IMAGE_BASE_URL } from '../../utils/constants';
+import ProfileImagePicker from '../../components/ImagePicker';
+import { api } from '../../api';
 
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { data, isLoading, error } = useAppSelector((state) => state.profile);
   const { user } = useAppSelector((state) => state.auth);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchProfile());
@@ -21,9 +23,36 @@ const ProfileScreen = ({ navigation }) => {
     navigation.goBack();
   };
 
+  const handleImageSelected = async (imageData) => {
+    try {
+      setIsUploading(true);
+      const result = await api.updateProfileImage(imageData);
+      
+      if (result.success) {
+        // Refresh profile data
+        dispatch(fetchProfile());
+        Alert.alert('Sukses', 'Foto profil berhasil diperbarui');
+      } else {
+        Alert.alert('Gagal', result.message || 'Gagal memperbarui foto profil');
+      }
+    } catch (error) {
+      Alert.alert('Error', error.message || 'Terjadi kesalahan saat mengupload gambar');
+      console.error('Upload error:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   if (isLoading) {
     return <LoadingOverlay />;
   }
+
+  // Determine photo URL
+  const photoUrl = adminShelter?.foto_url 
+    ? (adminShelter.foto_url.startsWith('http') 
+      ? adminShelter.foto_url 
+      : `https://berbagipendidikan.org${adminShelter.foto_url}`)
+    : 'https://berbagipendidikan.org/images/default.png';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -34,16 +63,11 @@ const ProfileScreen = ({ navigation }) => {
 
         {adminShelter ? (
           <View style={styles.profileContainer}>
-            <View style={styles.photoContainer}>
-              <Image
-                source={{ 
-                  uri: adminShelter.foto 
-                    ? `${IMAGE_BASE_URL}${adminShelter.foto}`
-                    : 'https://berbagipendidikan.org/images/default.png'
-                }}
-                style={styles.profilePhoto}
-              />
-            </View>
+            <ProfileImagePicker 
+              imageUri={photoUrl}
+              onImageSelected={handleImageSelected}
+              isUploading={isUploading}
+            />
 
             <View style={styles.infoCard}>
               <Text style={styles.cardTitle}>Informasi Personal</Text>

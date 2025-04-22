@@ -46,6 +46,35 @@ export const api = {
     return handleResponse(response);
   },
   
+  updateProfileImage: async (imageData) => {
+    const token = await getToken();
+    
+    // Create FormData for multipart/form-data request
+    const formData = new FormData();
+    
+    // Append the image file
+    const fileUri = imageData.uri;
+    const filename = fileUri.split('/').pop();
+    const match = /\.(\w+)$/.exec(filename);
+    const type = match ? `image/${match[1]}` : 'image';
+    
+    formData.append('foto', {
+      uri: fileUri,
+      name: filename,
+      type,
+    });
+    
+    const response = await fetch(`${API_BASE_URL}/update-profile-image`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    
+    return handleResponse(response);
+  },
+  
   // Fungsi-fungsi untuk API Anak
   getChildren: async () => {
     const token = await getToken();
