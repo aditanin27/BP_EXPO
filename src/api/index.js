@@ -76,9 +76,15 @@ export const api = {
   },
   
   // Fungsi-fungsi untuk API Anak
-  getChildren: async () => {
+  getChildren: async (page = 1, search = '') => {
     const token = await getToken();
-    const response = await fetch(`${API_BASE_URL}/anak`, {
+    const url = new URL(`${API_BASE_URL}/anak`);
+    url.searchParams.set('page', page);
+    if (search) {
+      url.searchParams.set('search', search);
+    }
+
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

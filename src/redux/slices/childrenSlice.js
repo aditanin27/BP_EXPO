@@ -1,14 +1,23 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '../../api';
 
-// Thunk for fetching all children
+// Thunk for fetching children with pagination
 export const fetchChildren = createAsyncThunk(
   'children/fetchAll',
-  async (_, { rejectWithValue }) => {
+  async ({ page = 1, search = '', loadMore = false }, { rejectWithValue }) => {
     try {
-      const response = await api.getChildren();
+      const response = await api.getChildren(page, search);
       if (response.success) {
-        return response.data;
+        return {
+          data: response.data,
+          pagination: {
+            ...response.pagination,
+            // Add status counts if they exist in the response
+            anak_aktif: response.pagination.anak_aktif || 0,
+            anak_tidak_aktif: response.pagination.anak_tidak_aktif || 0
+          },
+          loadMore
+        };
       }
       return rejectWithValue(response.message || 'Failed to fetch children');
     } catch (error) {
@@ -86,7 +95,19 @@ const childrenSlice = createSlice({
   initialState: {
     list: [],
     selectedChild: null,
+    pagination: {
+      current_page: 1,
+      last_page: 1,
+      total: 0,
+      per_page: 10,
+      from: null,
+      to: null,
+      // Add status count fields
+      anak_aktif: 0,
+      anak_tidak_aktif: 0
+    },
     isLoading: false,
+    isLoadingMore: false,
     error: null,
     createSuccess: false,
     updateSuccess: false,
@@ -106,16 +127,41 @@ const childrenSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Handle fetchChildren
-      .addCase(fetchChildren.pending, (state) => {
-        state.isLoading = true;
+      .addCase(fetchChildren.pending, (state, action) => {
+        if (action.meta.arg.loadMore) {
+          state.isLoadingMore = true;
+        } else {
+          state.isLoading = true;
+        }
         state.error = null;
       })
       .addCase(fetchChildren.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.list = action.payload;
+        const { data, pagination, loadMore } = action.payload;
+        
+        if (loadMore) {
+          // Append new data when loading more
+          state.list = [...state.list, ...data];
+          state.isLoadingMore = false;
+        } else {
+          // Replace data when fetching initial or fresh data
+          state.list = data;
+          state.isLoading = false;
+        }
+        
+        // Update pagination
+        state.pagination = {
+          ...pagination,
+          // Ensure status counts are preserved
+          anak_aktif: pagination.anak_aktif || state.pagination.anak_aktif,
+          anak_tidak_aktif: pagination.anak_tidak_aktif || state.pagination.anak_tidak_aktif
+        };
       })
       .addCase(fetchChildren.rejected, (state, action) => {
-        state.isLoading = false;
+        if (action.meta.arg.loadMore) {
+          state.isLoadingMore = false;
+        } else {
+          state.isLoading = false;
+        }
         state.error = action.payload;
       })
       
@@ -141,8 +187,16 @@ const childrenSlice = createSlice({
       })
       .addCase(createChild.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.list.push(action.payload);
+        state.list.unshift(action.payload); // Add to the beginning of the list
         state.createSuccess = true;
+        
+        // Update pagination counts
+        state.pagination.total += 1;
+        if (action.payload.status_validasi === 'aktif') {
+          state.pagination.anak_aktif += 1;
+        } else {
+          state.pagination.anak_tidak_aktif += 1;
+        }
       })
       .addCase(createChild.rejected, (state, action) => {
         state.isLoading = false;
@@ -163,6 +217,20 @@ const childrenSlice = createSlice({
         // Update the child in the list
         const index = state.list.findIndex(child => child.id_anak === action.payload.id_anak);
         if (index !== -1) {
+          const oldChild = state.list[index];
+          
+          // Update status counts if validation status changed
+          if (oldChild.status_validasi !== action.payload.status_validasi) {
+            if (oldChild.status_validasi === 'aktif') {
+              state.pagination.anak_aktif -= 1;
+              state.pagination.anak_tidak_aktif += 1;
+            } else {
+              state.pagination.anak_aktif += 1;
+              state.pagination.anak_tidak_aktif -= 1;
+            }
+          }
+          
+          // Replace the old child with the updated child
           state.list[index] = action.payload;
         }
         
@@ -187,8 +255,21 @@ const childrenSlice = createSlice({
         state.isLoading = false;
         state.deleteSuccess = true;
         
+        // Find the child being deleted
+        const deletedChild = state.list.find(child => child.id_anak === action.payload);
+        
         // Remove the child from the list
         state.list = state.list.filter(child => child.id_anak !== action.payload);
+        
+        // Update pagination counts
+        if (deletedChild) {
+          state.pagination.total -= 1;
+          if (deletedChild.status_validasi === 'aktif') {
+            state.pagination.anak_aktif -= 1;
+          } else {
+            state.pagination.anak_tidak_aktif -= 1;
+          }
+        }
         
         // Clear selectedChild if it was the deleted child
         if (state.selectedChild && state.selectedChild.id_anak === action.payload) {

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { logoutUser } from '../../redux/slices/authSlice';
 import { fetchChildren } from '../../redux/slices/childrenSlice';
@@ -9,27 +9,14 @@ import LoadingOverlay from '../../components/LoadingOverlay';
 const HomeScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { user, adminShelter } = useAppSelector((state) => state.auth);
-  const { list, isLoading } = useAppSelector((state) => state.children);
-  const [childCount, setChildCount] = useState(0);
-  const [activeCount, setActiveCount] = useState(0);
-  const [inactiveCount, setInactiveCount] = useState(0);
+  const { 
+    isLoading, 
+    pagination 
+  } = useAppSelector((state) => state.children);
 
   useEffect(() => {
-    dispatch(fetchChildren());
+    dispatch(fetchChildren({ page: 1 }));
   }, [dispatch]);
-
-  useEffect(() => {
-    if (list) {
-      setChildCount(list.length);
-      
-      // Count active and inactive children
-      const active = list.filter(child => child.status_validasi === 'aktif').length;
-      const inactive = list.filter(child => child.status_validasi !== 'aktif').length;
-      
-      setActiveCount(active);
-      setInactiveCount(inactive);
-    }
-  }, [list]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -76,7 +63,7 @@ const HomeScreen = ({ navigation }) => {
               style={[styles.statCard, styles.totalCard]}
               onPress={handleViewChildren}
             >
-              <Text style={styles.statNumber}>{childCount}</Text>
+              <Text style={styles.statNumber}>{pagination.total || 0}</Text>
               <Text style={styles.statLabel}>Total Anak</Text>
             </TouchableOpacity>
             
@@ -84,7 +71,7 @@ const HomeScreen = ({ navigation }) => {
               style={[styles.statCard, styles.activeCard]}
               onPress={handleViewChildren}
             >
-              <Text style={styles.statNumber}>{activeCount}</Text>
+              <Text style={styles.statNumber}>{pagination.anak_aktif || 0}</Text>
               <Text style={styles.statLabel}>Aktif</Text>
             </TouchableOpacity>
             
@@ -92,7 +79,7 @@ const HomeScreen = ({ navigation }) => {
               style={[styles.statCard, styles.inactiveCard]}
               onPress={handleViewChildren}
             >
-              <Text style={styles.statNumber}>{inactiveCount}</Text>
+              <Text style={styles.statNumber}>{pagination.anak_tidak_aktif || 0}</Text>
               <Text style={styles.statLabel}>Tidak Aktif</Text>
             </TouchableOpacity>
           </View>
@@ -188,111 +175,85 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
+  statsContainer: {
+    marginBottom: 20,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 15,
     color: '#333',
-  },
-  statsContainer: {
-    marginBottom: 20,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   statCard: {
-    width: '31%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
+    flex: 1,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 3,
+    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 5,
   },
   totalCard: {
-    borderTopColor: '#2E86DE',
-    borderTopWidth: 3,
+    backgroundColor: '#3498db',
   },
   activeCard: {
-    borderTopColor: '#27ae60',
-    borderTopWidth: 3,
+    backgroundColor: '#2ecc71',
   },
   inactiveCard: {
-    borderTopColor: '#f39c12',
-    borderTopWidth: 3,
+    backgroundColor: '#e74c3c',
   },
   statNumber: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
+    color: 'white',
     marginBottom: 5,
   },
   statLabel: {
     fontSize: 14,
-    color: '#555',
+    color: 'white',
   },
   menuContainer: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   menuRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   menuCard: {
-    width: '48%',
+    flex: 1,
+    alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 10,
-    padding: 20,
-    marginBottom: 15,
-    alignItems: 'center',
-    marginRight: '4%',
+    padding: 15,
+    marginHorizontal: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 10,
+    shadowRadius: 5,
     elevation: 3,
-  },
-  menuCard: {
-    width: '48%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    marginBottom: 15,
-    alignItems: 'center',
-    marginRight: '4%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 3,
-  },
-  menuRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
   },
   menuIcon: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 10,
   },
-  iconText: {
-    fontSize: 28,
-  },
   childrenIcon: {
-    backgroundColor: '#e3f2fd',
+    backgroundColor: '#3498db',
   },
   profileIcon: {
-    backgroundColor: '#e8f5e9',
+    backgroundColor: '#2ecc71',
+  },
+  iconText: {
+    fontSize: 30,
   },
   menuLabel: {
     fontSize: 16,
-    fontWeight: '500',
     color: '#333',
   },
   buttonContainer: {

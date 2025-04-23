@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { 
   View, 
   Text, 
@@ -14,44 +14,58 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchChildren, deleteChild, resetChildrenState } from '../../redux/slices/childrenSlice';
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
-import { IMAGE_BASE_URL } from '../../utils/constants';
-import { formatBirthDate, calculateAge } from '../../utils/dateUtils'; // Import dari dateUtils
+import { formatBirthDate, calculateAge } from '../../utils/dateUtils';
 
 const ChildrenListScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { list, isLoading, error, deleteSuccess } = useAppSelector((state) => state.children);
+  const { 
+    list, 
+    isLoading, 
+    isLoadingMore, 
+    error, 
+    deleteSuccess, 
+    pagination 
+  } = useAppSelector((state) => state.children);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredChildren, setFilteredChildren] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  // Initial fetch
   useEffect(() => {
-    dispatch(fetchChildren());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (list) {
-      setFilteredChildren(list);
-    }
-  }, [list]);
+    dispatch(fetchChildren({ page: 1, search: searchQuery }));
+  }, [dispatch, searchQuery]);
 
   // Reset delete success state and refresh list after deletion
   useEffect(() => {
     if (deleteSuccess) {
       Alert.alert('Sukses', 'Data anak berhasil dihapus');
       dispatch(resetChildrenState());
+      dispatch(fetchChildren({ page: 1, search: searchQuery }));
     }
-  }, [deleteSuccess, dispatch]);
+  }, [deleteSuccess, dispatch, searchQuery]);
 
-  // Filter children based on search query
-  useEffect(() => {
-    if (list) {
-      const lowercasedQuery = searchQuery.toLowerCase();
-      const filtered = list.filter(child => 
-        child.full_name.toLowerCase().includes(lowercasedQuery) ||
-        (child.nick_name && child.nick_name.toLowerCase().includes(lowercasedQuery))
-      );
-      setFilteredChildren(filtered);
+  // Handle load more functionality
+  const handleLoadMore = useCallback(() => {
+    if (
+      !isLoading && 
+      !isLoadingMore && 
+      currentPage < pagination.last_page
+    ) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      dispatch(fetchChildren({ 
+        page: nextPage, 
+        search: searchQuery, 
+        loadMore: true 
+      }));
     }
-  }, [searchQuery, list]);
+  }, [
+    dispatch, 
+    currentPage, 
+    pagination.last_page, 
+    isLoading, 
+    isLoadingMore, 
+    searchQuery
+  ]);
 
   const handleAddChild = () => {
     navigation.navigate('AddChild');
@@ -91,9 +105,7 @@ const ChildrenListScreen = ({ navigation }) => {
       <View style={styles.cardContent}>
         <Image
           source={{ 
-            uri: item.foto 
-              ? `${IMAGE_BASE_URL}Anak/${item.id_anak}/${item.foto}`
-              : 'https://berbagipendidikan.org/images/default.png'
+            uri: item.foto_url || 'https://berbagipendidikan.org/images/default.png'
           }}
           style={styles.childPhoto}
         />
@@ -146,13 +158,23 @@ const ChildrenListScreen = ({ navigation }) => {
     }
   };
 
+  // Footer component to show loading more indicator
+  const renderFooter = () => {
+    if (!isLoadingMore) return null;
+    return (
+      <View style={styles.footerLoading}>
+        <Text>Memuat lebih banyak...</Text>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {isLoading && <LoadingOverlay />}
       
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Daftar Anak Binaan</Text>
-        <Text style={styles.headerSubtitle}>Total: {filteredChildren.length} anak</Text>
+        <Text style={styles.headerSubtitle}>Total: {pagination.total} anak</Text>
       </View>
       
       <View style={styles.searchContainer}>
@@ -160,7 +182,10 @@ const ChildrenListScreen = ({ navigation }) => {
           style={styles.searchInput}
           placeholder="Cari nama anak..."
           value={searchQuery}
-          onChangeText={setSearchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            setCurrentPage(1); // Reset page when searching
+          }}
         />
       </View>
       
@@ -169,16 +194,19 @@ const ChildrenListScreen = ({ navigation }) => {
           <Text style={styles.errorText}>{error}</Text>
           <Button 
             title="Coba Lagi" 
-            onPress={() => dispatch(fetchChildren())} 
+            onPress={() => dispatch(fetchChildren({ page: 1, search: searchQuery }))} 
           />
         </View>
       ) : (
         <>
           <FlatList
-            data={filteredChildren}
+            data={list}
             keyExtractor={(item) => item.id_anak.toString()}
             renderItem={renderItem}
             contentContainerStyle={styles.listContainer}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={renderFooter}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
                 <Text style={styles.emptyText}>
@@ -204,10 +232,6 @@ const ChildrenListScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-// ... styles remains the same ...
-
-export default ChildrenListScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -278,6 +302,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
     marginTop: 2,
+  },
+  footerLoading: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   childDetail: {
     fontSize: 14,
@@ -383,3 +412,4 @@ const styles = StyleSheet.create({
   },
 });
 
+export default ChildrenListScreen;
