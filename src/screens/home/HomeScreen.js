@@ -107,6 +107,15 @@ const HomeScreen = ({ navigation }) => {
               </View>
               <Text style={styles.menuLabel}>Profil</Text>
             </TouchableOpacity>
+            <TouchableOpacity 
+  style={styles.menuCard}
+  onPress={() => navigation.navigate('TutorList')}
+>
+  <View style={[styles.menuIcon, styles.tutorIcon]}>
+    <Text style={styles.iconText}>👨‍🏫</Text>
+  </View>
+  <Text style={styles.menuLabel}>Tutor</Text>
+</TouchableOpacity>
           </View>
         </View>
 
@@ -220,7 +229,7 @@ const styles = StyleSheet.create({
   },
   menuRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around', 
   },
   menuCard: {
     flex: 1,
@@ -266,6 +275,9 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: '#ff3b30',
+  },
+  tutorIcon: {
+    backgroundColor: '#9b59b6', 
   },
 });
 

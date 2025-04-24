@@ -218,4 +218,21 @@ export const api = {
     });
     return handleResponse(response);
   },
+  getTutors: async (page = 1, search = '') => {
+    const token = await getToken();
+    const url = new URL(`${API_BASE_URL}/tutor`);
+    url.searchParams.set('page', page);
+    if (search) {
+      url.searchParams.set('search', search);
+    }
+  
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  },
 };
