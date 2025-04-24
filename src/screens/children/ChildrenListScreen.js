@@ -16,7 +16,7 @@ import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import { formatBirthDate, calculateAge } from '../../utils/dateUtils';
 
-const ChildrenListScreen = ({ navigation }) => {
+const ChildrenListScreen = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const { 
     list, 
@@ -28,20 +28,31 @@ const ChildrenListScreen = ({ navigation }) => {
   } = useAppSelector((state) => state.children);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // Get status filter from route params
+  const statusFilter = route.params?.status;
 
   // Initial fetch
   useEffect(() => {
-    dispatch(fetchChildren({ page: 1, search: searchQuery }));
-  }, [dispatch, searchQuery]);
+    dispatch(fetchChildren({ 
+      page: 1, 
+      search: searchQuery,
+      status: statusFilter // Pass status filter to API
+    }));
+  }, [dispatch, searchQuery, statusFilter]);
 
   // Reset delete success state and refresh list after deletion
   useEffect(() => {
     if (deleteSuccess) {
       Alert.alert('Sukses', 'Data anak berhasil dihapus');
       dispatch(resetChildrenState());
-      dispatch(fetchChildren({ page: 1, search: searchQuery }));
+      dispatch(fetchChildren({ 
+        page: 1, 
+        search: searchQuery,
+        status: statusFilter 
+      }));
     }
-  }, [deleteSuccess, dispatch, searchQuery]);
+  }, [deleteSuccess, dispatch, searchQuery, statusFilter]);
 
   // Handle load more functionality
   const handleLoadMore = useCallback(() => {
@@ -55,7 +66,8 @@ const ChildrenListScreen = ({ navigation }) => {
       dispatch(fetchChildren({ 
         page: nextPage, 
         search: searchQuery, 
-        loadMore: true 
+        loadMore: true,
+        status: statusFilter 
       }));
     }
   }, [
@@ -64,7 +76,8 @@ const ChildrenListScreen = ({ navigation }) => {
     pagination.last_page, 
     isLoading, 
     isLoadingMore, 
-    searchQuery
+    searchQuery,
+    statusFilter
   ]);
 
   const handleAddChild = () => {
@@ -168,13 +181,36 @@ const ChildrenListScreen = ({ navigation }) => {
     );
   };
 
+  // Determine header title and subtitle based on status filter
+  const getHeaderInfo = () => {
+    switch (statusFilter) {
+      case 'aktif':
+        return {
+          title: 'Anak Binaan Aktif',
+          subtitle: `Total: ${pagination.anak_aktif} anak aktif`
+        };
+      case 'tidak aktif':
+        return {
+          title: 'Anak Binaan Tidak Aktif',
+          subtitle: `Total: ${pagination.anak_tidak_aktif} anak tidak aktif`
+        };
+      default:
+        return {
+          title: 'Daftar Anak Binaan',
+          subtitle: `Total: ${pagination.total} anak`
+        };
+    }
+  };
+
+  const headerInfo = getHeaderInfo();
+
   return (
     <SafeAreaView style={styles.container}>
       {isLoading && <LoadingOverlay />}
       
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Daftar Anak Binaan</Text>
-        <Text style={styles.headerSubtitle}>Total: {pagination.total} anak</Text>
+        <Text style={styles.headerTitle}>{headerInfo.title}</Text>
+        <Text style={styles.headerSubtitle}>{headerInfo.subtitle}</Text>
       </View>
       
       <View style={styles.searchContainer}>
@@ -194,7 +230,11 @@ const ChildrenListScreen = ({ navigation }) => {
           <Text style={styles.errorText}>{error}</Text>
           <Button 
             title="Coba Lagi" 
-            onPress={() => dispatch(fetchChildren({ page: 1, search: searchQuery }))} 
+            onPress={() => dispatch(fetchChildren({ 
+              page: 1, 
+              search: searchQuery,
+              status: statusFilter 
+            }))} 
           />
         </View>
       ) : (

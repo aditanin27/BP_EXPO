@@ -76,14 +76,17 @@ export const api = {
   },
   
   // Fungsi untuk mengambil daftar anak
-  getChildren: async ({ page = 1, search = '' }) => {
+  getChildren: async ({ page = 1, search = '', status = '' }) => {
     const token = await getToken();
     const url = new URL(`${API_BASE_URL}/anak`);
     url.searchParams.set('page', page);
     if (search) {
       url.searchParams.set('search', search);
     }
-
+    if (status) {
+      url.searchParams.set('status', status);
+    }
+  
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {

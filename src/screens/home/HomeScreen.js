@@ -26,8 +26,8 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('Profile');
   };
 
-  const handleViewChildren = () => {
-    navigation.navigate('ChildrenList');
+  const handleViewChildren = (status = null) => {
+    navigation.navigate('ChildrenList', { status });
   };
 
   return (
@@ -61,7 +61,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.statsRow}>
             <TouchableOpacity 
               style={[styles.statCard, styles.totalCard]}
-              onPress={handleViewChildren}
+              onPress={() => handleViewChildren()}
             >
               <Text style={styles.statNumber}>{pagination.total || 0}</Text>
               <Text style={styles.statLabel}>Total Anak</Text>
@@ -69,7 +69,7 @@ const HomeScreen = ({ navigation }) => {
             
             <TouchableOpacity 
               style={[styles.statCard, styles.activeCard]}
-              onPress={handleViewChildren}
+              onPress={() => handleViewChildren('aktif')}
             >
               <Text style={styles.statNumber}>{pagination.anak_aktif || 0}</Text>
               <Text style={styles.statLabel}>Aktif</Text>
@@ -77,7 +77,7 @@ const HomeScreen = ({ navigation }) => {
             
             <TouchableOpacity 
               style={[styles.statCard, styles.inactiveCard]}
-              onPress={handleViewChildren}
+              onPress={() => handleViewChildren('non-aktif')}
             >
               <Text style={styles.statNumber}>{pagination.anak_tidak_aktif || 0}</Text>
               <Text style={styles.statLabel}>Tidak Aktif</Text>
@@ -90,7 +90,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.menuRow}>
             <TouchableOpacity 
               style={styles.menuCard}
-              onPress={handleViewChildren}
+              onPress={() => handleViewChildren()}
             >
               <View style={[styles.menuIcon, styles.childrenIcon]}>
                 <Text style={styles.iconText}>👧</Text>

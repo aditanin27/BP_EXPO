@@ -4,15 +4,14 @@ import { api } from '../../api';
 // Thunk for fetching children with pagination
 export const fetchChildren = createAsyncThunk(
   'children/fetchAll',
-  async ({ page = 1, search = '', loadMore = false }, { rejectWithValue }) => {
+  async ({ page = 1, search = '', status = '', loadMore = false }, { rejectWithValue }) => {
     try {
-      const response = await api.getChildren({ page, search });
+      const response = await api.getChildren({ page, search, status });
       if (response.success) {
         return {
           data: response.data,
           pagination: {
             ...response.pagination,
-            // Pastikan status count tersedia
             total: response.pagination.total || 0,
             anak_aktif: response.summary?.anak_aktif || 0,
             anak_tidak_aktif: response.summary?.anak_tidak_aktif || 0
