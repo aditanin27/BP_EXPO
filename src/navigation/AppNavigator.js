@@ -18,7 +18,7 @@ import ChildFormScreen from '../screens/children/ChildFormScreen';
 
 // Tutor screens
 import TutorListScreen from '../screens/tutor/TutorListScreen';
-
+import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
 
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
 import { api } from '../api';
@@ -110,16 +110,21 @@ const AppNavigator = () => {
                 animation: 'slide_from_right',
               }}
             />
-             {/* New Tutor screens */}
-    <Stack.Screen 
-      name="TutorList" 
-      component={TutorListScreen}
-      options={{
-        animation: 'slide_from_right',
-      }}
-    />
-    
-
+            {/* Tutor screens */}
+            <Stack.Screen 
+              name="TutorList" 
+              component={TutorListScreen}
+              options={{
+                animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen 
+              name="TutorDetail" 
+              component={TutorDetailScreen}
+              options={{
+                animation: 'slide_from_right',
+              }}
+            />
           </>
         )}
       </Stack.Navigator>

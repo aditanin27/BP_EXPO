@@ -22,10 +22,28 @@ export const fetchTutors = createAsyncThunk(
   }
 );
 
+export const fetchTutorDetail = createAsyncThunk(
+  'tutor/fetchDetail',
+  async (tutorId, { rejectWithValue }) => {
+    try {
+      const response = await api.getTutorDetail(tutorId);
+      
+      if (response.success) {
+        return response.data;
+      }
+      
+      return rejectWithValue(response.message || 'Failed to fetch tutor details');
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to fetch tutor details');
+    }
+  }
+);
+
 const tutorSlice = createSlice({
   name: 'tutor',
   initialState: {
     data: [],
+    detailData: null,
     pagination: {
       total: 0,
       per_page: 10,
@@ -78,6 +96,20 @@ const tutorSlice = createSlice({
       .addCase(fetchTutors.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      .addCase(fetchTutorDetail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.detailData = null;
+      })
+      .addCase(fetchTutorDetail.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.detailData = action.payload;
+      })
+      .addCase(fetchTutorDetail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+        state.detailData = null;
       });
   }
 });

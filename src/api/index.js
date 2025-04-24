@@ -235,4 +235,15 @@ export const api = {
     });
     return handleResponse(response);
   },
+  getTutorDetail: async (id) => {
+    const token = await getToken();
+    const response = await fetch(`${API_BASE_URL}/tutor/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  },
 };

@@ -21,7 +21,6 @@ const TutorCard = ({ tutor, onPress }) => {
       <Image 
         source={{ uri: tutor.foto_url }} 
         style={styles.cardImage} 
-        
       />
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle} numberOfLines={1}>
@@ -125,9 +124,7 @@ const TutorListScreen = ({ navigation }) => {
           <TutorCard 
             tutor={item} 
             onPress={() => {
-              // TODO: Navigate to tutor detail when implemented
-              // navigation.navigate('TutorDetail', { tutorId: item.id_tutor })
-              console.log('Tutor Detail Navigation Placeholder');
+              navigation.navigate('TutorDetail', { tutorId: item.id_tutor });
             }} 
           />
         )}
