@@ -75,8 +75,8 @@ export const api = {
     return handleResponse(response);
   },
   
-  // Fungsi-fungsi untuk API Anak
-  getChildren: async (page = 1, search = '') => {
+  // Fungsi untuk mengambil daftar anak
+  getChildren: async ({ page = 1, search = '' }) => {
     const token = await getToken();
     const url = new URL(`${API_BASE_URL}/anak`);
     url.searchParams.set('page', page);

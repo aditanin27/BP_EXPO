@@ -6,15 +6,16 @@ export const fetchChildren = createAsyncThunk(
   'children/fetchAll',
   async ({ page = 1, search = '', loadMore = false }, { rejectWithValue }) => {
     try {
-      const response = await api.getChildren(page, search);
+      const response = await api.getChildren({ page, search });
       if (response.success) {
         return {
           data: response.data,
           pagination: {
             ...response.pagination,
-            // Add status counts if they exist in the response
-            anak_aktif: response.pagination.anak_aktif || 0,
-            anak_tidak_aktif: response.pagination.anak_tidak_aktif || 0
+            // Pastikan status count tersedia
+            total: response.pagination.total || 0,
+            anak_aktif: response.summary?.anak_aktif || 0,
+            anak_tidak_aktif: response.summary?.anak_tidak_aktif || 0
           },
           loadMore
         };
@@ -102,7 +103,7 @@ const childrenSlice = createSlice({
       per_page: 10,
       from: null,
       to: null,
-      // Add status count fields
+      // Status count fields
       anak_aktif: 0,
       anak_tidak_aktif: 0
     },
@@ -148,12 +149,12 @@ const childrenSlice = createSlice({
           state.isLoading = false;
         }
         
-        // Update pagination
+        // Update pagination dengan memastikan status count tersedia
         state.pagination = {
           ...pagination,
-          // Ensure status counts are preserved
-          anak_aktif: pagination.anak_aktif || state.pagination.anak_aktif,
-          anak_tidak_aktif: pagination.anak_tidak_aktif || state.pagination.anak_tidak_aktif
+          total: pagination.total || 0,
+          anak_aktif: pagination.anak_aktif || 0,
+          anak_tidak_aktif: pagination.anak_tidak_aktif || 0
         };
       })
       .addCase(fetchChildren.rejected, (state, action) => {
@@ -192,7 +193,8 @@ const childrenSlice = createSlice({
         
         // Update pagination counts
         state.pagination.total += 1;
-        if (action.payload.status_validasi === 'aktif') {
+        const statusValidasi = action.payload.status_validasi?.toLowerCase();
+        if (statusValidasi === 'aktif') {
           state.pagination.anak_aktif += 1;
         } else {
           state.pagination.anak_tidak_aktif += 1;
@@ -218,10 +220,12 @@ const childrenSlice = createSlice({
         const index = state.list.findIndex(child => child.id_anak === action.payload.id_anak);
         if (index !== -1) {
           const oldChild = state.list[index];
+          const oldStatus = oldChild.status_validasi?.toLowerCase();
+          const newStatus = action.payload.status_validasi?.toLowerCase();
           
           // Update status counts if validation status changed
-          if (oldChild.status_validasi !== action.payload.status_validasi) {
-            if (oldChild.status_validasi === 'aktif') {
+          if (oldStatus !== newStatus) {
+            if (oldStatus === 'aktif') {
               state.pagination.anak_aktif -= 1;
               state.pagination.anak_tidak_aktif += 1;
             } else {
@@ -264,7 +268,8 @@ const childrenSlice = createSlice({
         // Update pagination counts
         if (deletedChild) {
           state.pagination.total -= 1;
-          if (deletedChild.status_validasi === 'aktif') {
+          const statusValidasi = deletedChild.status_validasi?.toLowerCase();
+          if (statusValidasi === 'aktif') {
             state.pagination.anak_aktif -= 1;
           } else {
             state.pagination.anak_tidak_aktif -= 1;
