@@ -3,74 +3,76 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  ScrollView, 
   Image, 
-  SafeAreaView,
-  Alert,
-  TouchableOpacity
+  TouchableOpacity, 
+  ScrollView, 
+  SafeAreaView 
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { fetchChildById, deleteChild, resetChildrenState } from '../../redux/slices/childrenSlice';
-import Button from '../../components/Button';
+import { fetchChildById } from '../../redux/slices/childrenSlice';
 import LoadingOverlay from '../../components/LoadingOverlay';
-import { formatBirthDate, calculateAge } from '../../utils/dateUtils';
 
 const ChildDetailScreen = ({ route, navigation }) => {
   const { childId } = route.params;
   const dispatch = useAppDispatch();
-  const { selectedChild, isLoading, error, deleteSuccess } = useAppSelector((state) => state.children);
+  const { selectedChild, isLoading, error } = useAppSelector((state) => state.children);
 
   useEffect(() => {
     dispatch(fetchChildById(childId));
   }, [dispatch, childId]);
 
-  useEffect(() => {
-    if (deleteSuccess) {
-      Alert.alert('Sukses', 'Data anak berhasil dihapus');
-      dispatch(resetChildrenState());
-      navigation.goBack();
+  const menuItems = [
+    { 
+      title: 'Informasi Anak', 
+      screen: 'InformasiAnak',
+      icon: '📋'
+    },
+    { 
+      title: 'Raport', 
+      screen: 'Raport',
+      icon: '📚'
+    },
+    { 
+      title: 'Prestasi', 
+      screen: 'Prestasi',
+      icon: '🏆'
+    },
+    { 
+      title: 'Surat', 
+      screen: 'Surat',
+      icon: '✉️'
+    },
+    { 
+      title: 'Riwayat', 
+      screen: 'Riwayat',
+      icon: '📖'
+    },
+    { 
+      title: 'Cerita', 
+      screen: 'Cerita',
+      icon: '📝'
+    },
+    { 
+      title: 'Nilai Anak', 
+      screen: 'NilaiAnak',
+      icon: '📊'
+    },
+    { 
+      title: 'Rapor Shelter', 
+      screen: 'RaporShelter',
+      icon: '🏠'
     }
-  }, [deleteSuccess, dispatch, navigation]);
+  ];
 
-  const handleEdit = () => {
-    navigation.navigate('EditChild', { childId });
-  };
-
-  const handleDelete = () => {
-    Alert.alert(
-      'Konfirmasi Hapus',
-      `Apakah Anda yakin ingin menghapus data anak ${selectedChild?.full_name}?`,
-      [
-        {
-          text: 'Batal',
-          style: 'cancel',
-        },
-        {
-          text: 'Hapus',
-          onPress: () => dispatch(deleteChild(childId)),
-          style: 'destructive',
-        },
-      ]
-    );
+  const navigateToScreen = (screen) => {
+    navigation.navigate(screen, { 
+      childName: selectedChild?.full_name || 'Anak',
+      selectedChild: selectedChild 
+    });
   };
 
   const handleBack = () => {
     navigation.goBack();
-  };
-
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case 'aktif':
-        return styles.statusActive;
-      case 'tidak aktif':
-        return styles.statusInactive;
-      case 'Ditolak':
-        return styles.statusRejected;
-      case 'Ditangguhkan':
-        return styles.statusSuspended;
-      default:
-        return styles.statusInactive;
-    }
   };
 
   if (isLoading) {
@@ -81,15 +83,9 @@ const ChildDetailScreen = ({ route, navigation }) => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <Button 
-          title="Coba Lagi" 
-          onPress={() => dispatch(fetchChildById(childId))} 
-        />
-        <Button 
-          title="Kembali" 
-          onPress={handleBack}
-          style={styles.backButton}
-        />
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+          <Text style={styles.backButtonText}>Kembali</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -98,28 +94,27 @@ const ChildDetailScreen = ({ route, navigation }) => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Data anak tidak ditemukan</Text>
-        <Button 
-          title="Kembali" 
-          onPress={handleBack}
-          style={styles.backButton}
-        />
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+          <Text style={styles.backButtonText}>Kembali</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
+  // Default image URL if foto_url is undefined
+  const defaultImageUrl = 'https://berbagipendidikan.org/images/default.png';
+  const childImageUrl = selectedChild.foto_url || 
+    (selectedChild.foto ? `https://berbagipendidikan.org/storage/Anak/${selectedChild.id_anak}/${selectedChild.foto}` : defaultImageUrl);
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Detail Anak</Text>
-        </View>
-
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        {/* Photo Section */}
         <View style={styles.photoSection}>
-          <Image
-            source={{ 
-              uri: selectedChild.foto_url || 'https://berbagipendidikan.org/images/default.png'
-            }}
-            style={styles.childPhoto}
+          <Image 
+            source={{ uri: childImageUrl }} 
+            style={styles.childPhoto} 
+            defaultSource={{ uri: defaultImageUrl }}
           />
           <Text style={styles.childName}>{selectedChild.full_name}</Text>
           {selectedChild.nick_name && (
@@ -127,197 +122,90 @@ const ChildDetailScreen = ({ route, navigation }) => {
           )}
         </View>
 
-        <View style={styles.infoCard}>
-          <Text style={styles.cardTitle}>Informasi Pribadi</Text>
-          
-          <InfoRow 
-            label="Status" 
-            value={selectedChild.status_validasi} 
-            valueStyle={getStatusStyle(selectedChild.status_validasi)} 
-          />
-          <InfoRow label="NIK" value={selectedChild.nik_anak || '-'} />
-          <InfoRow 
-            label="Jenis Kelamin" 
-            value={selectedChild.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'} 
-          />
-          <InfoRow 
-            label="Tempat, Tgl Lahir" 
-            value={`${selectedChild.tempat_lahir}, ${formatBirthDate(selectedChild.tanggal_lahir)}`} 
-          />
-          <InfoRow label="Usia" value={`${calculateAge(selectedChild.tanggal_lahir)} tahun`} />
-          <InfoRow label="Agama" value={selectedChild.agama} />
-          <InfoRow label="Anak ke" value={`${selectedChild.anak_ke || '-'} dari ${selectedChild.dari_bersaudara || '-'} bersaudara`} />
-          <InfoRow label="Tinggal bersama" value={selectedChild.tinggal_bersama || '-'} />
-        </View>
-
-        {selectedChild.shelter && (
-          <View style={styles.infoCard}>
-            <Text style={styles.cardTitle}>Informasi Shelter</Text>
-            <InfoRow label="Shelter" value={selectedChild.shelter.nama_shelter || '-'} />
-            <InfoRow label="Koordinator" value={selectedChild.shelter.nama_koordinator || '-'} />
-          </View>
-        )}
-
-        {selectedChild.anakPendidikan && (
-          <View style={styles.infoCard}>
-            <Text style={styles.cardTitle}>Informasi Pendidikan</Text>
-            <InfoRow label="Status" value={selectedChild.anakPendidikan.jenjang || '-'} />
-            <InfoRow label="Sekolah" value={selectedChild.anakPendidikan.nama_sekolah || '-'} />
-            <InfoRow label="Kelas" value={selectedChild.anakPendidikan.kelas || '-'} />
-          </View>
-        )}
-
-        <View style={styles.infoCard}>
-          <Text style={styles.cardTitle}>Informasi Tambahan</Text>
-          <InfoRow label="Hobi" value={selectedChild.hobi || '-'} />
-          <InfoRow label="Pelajaran Favorit" value={selectedChild.pelajaran_favorit || '-'} />
-          <InfoRow label="Prestasi" value={selectedChild.prestasi || '-'} />
-          <InfoRow label="Hafalan" value={selectedChild.hafalan || '-'} />
-          <InfoRow label="Jarak ke Shelter" value={selectedChild.jarak_rumah ? `${selectedChild.jarak_rumah} km` : '-'} />
-          <InfoRow label="Transportasi" value={selectedChild.transportasi || '-'} />
-        </View>
-
-        <View style={styles.actionButtons}>
-          <Button
-            title="Edit Data"
-            onPress={handleEdit}
-            style={styles.editButton}
-          />
-          
-          <Button
-            title="Hapus Data"
-            onPress={handleDelete}
-            style={styles.deleteButton}
-            textStyle={styles.deleteText}
-          />
-          
-          <Button
-            title="Kembali"
-            onPress={handleBack}
-            style={styles.backButton}
-          />
+        {/* Menu Grid */}
+        <View style={styles.menuGrid}>
+          {menuItems.map((menu, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={styles.menuItem}
+              onPress={() => navigateToScreen(menu.screen)}
+            >
+              <Text style={styles.menuIcon}>{menu.icon}</Text>
+              <Text style={styles.menuTitle}>{menu.title}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-const InfoRow = ({ label, value, valueStyle }) => (
-  <View style={styles.infoRow}>
-    <Text style={styles.infoLabel}>{label}</Text>
-    <Text style={[styles.infoValue, valueStyle]}>{value}</Text>
-  </View>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  scrollView: {
-    padding: 0,
-  },
-  header: {
-    padding: 20,
-    backgroundColor: '#2E86DE',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: 'white',
+  scrollViewContent: {
+    flexGrow: 1,
   },
   photoSection: {
     alignItems: 'center',
-    backgroundColor: 'white',
     paddingVertical: 20,
-    marginBottom: 15,
-  },
-  childPhoto: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 10,
-    borderWidth: 3,
-    borderColor: '#2E86DE',
-  },
-  childName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-  },
-  childNickname: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 5,
-    textAlign: 'center',
-  },
-  infoCard: {
     backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    marginHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 3,
   },
-  cardTitle: {
-    fontSize: 18,
+  childPhoto: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    borderColor: '#2E86DE',
+  },
+  childName: {
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginTop: 10,
     color: '#333',
   },
-  infoRow: {
+  childNickname: {
+    fontSize: 16,
+    color: '#666',
+    fontStyle: 'italic',
+  },
+  menuGrid: {
     flexDirection: 'row',
-    marginBottom: 12,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
   },
-  infoLabel: {
+  menuItem: {
     width: '40%',
-    fontSize: 16,
-    color: '#555',
-    fontWeight: '500',
-  },
-  infoValue: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-  },
-  statusActive: {
-    color: '#27ae60',
-    fontWeight: 'bold',
-  },
-  statusInactive: {
-    color: '#f39c12',
-    fontWeight: 'bold',
-  },
-  statusRejected: {
-    color: '#e74c3c',
-    fontWeight: 'bold',
-  },
-  statusSuspended: {
-    color: '#7f8c8d',
-    fontWeight: 'bold',
-  },
-  actionButtons: {
-    padding: 15,
-  },
-  editButton: {
-    backgroundColor: '#2E86DE',
-  },
-  deleteButton: {
+    aspectRatio: 1,
+    margin: 10,
     backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: '#e74c3c',
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 3,
   },
-  deleteText: {
-    color: '#e74c3c',
+  menuIcon: {
+    fontSize: 40,
+    marginBottom: 10,
   },
-  backButton: {
-    backgroundColor: '#555',
+  menuTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    color: '#333',
   },
   errorContainer: {
     flex: 1,
@@ -330,6 +218,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 20,
+  },
+  backButton: {
+    backgroundColor: '#2E86DE',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  backButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 

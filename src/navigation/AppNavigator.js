@@ -16,6 +16,16 @@ import ChildrenListScreen from '../screens/children/ChildrenListScreen';
 import ChildDetailScreen from '../screens/children/ChildDetailScreen';
 import ChildFormScreen from '../screens/children/ChildFormScreen';
 
+// New Child Detail Menu Screens
+import InformasiAnakScreen from '../screens/children/childMenuScreens/InformasiAnakScreen';
+import RaportScreen from '../screens/children/childMenuScreens/RaportScreen';
+import PrestasiScreen from '../screens/children/childMenuScreens/PrestasiScreen';
+import SuratScreen from '../screens/children/childMenuScreens/SuratScreen';
+import RiwayatScreen from '../screens/children/childMenuScreens/RiwayatScreen';
+import CeritaScreen from '../screens/children/childMenuScreens/CeritaScreen';
+import NilaiAnakScreen from '../screens/children/childMenuScreens/NilaiAnakScreen';
+import RaporShelterScreen from '../screens/children/childMenuScreens/RaporShelterScreen';
+
 // Tutor screens
 import TutorListScreen from '../screens/tutor/TutorListScreen';
 import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
@@ -108,6 +118,71 @@ const AppNavigator = () => {
               component={ChildFormScreen}
               options={{
                 animation: 'slide_from_right',
+              }}
+            />
+            {/* Child Detail Menu Screens */}
+            <Stack.Screen 
+              name="InformasiAnak" 
+              component={InformasiAnakScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Informasi Anak',
+              }}
+            />
+            <Stack.Screen 
+              name="Raport" 
+              component={RaportScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Raport',
+              }}
+            />
+            <Stack.Screen 
+              name="Prestasi" 
+              component={PrestasiScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Prestasi',
+              }}
+            />
+            <Stack.Screen 
+              name="Surat" 
+              component={SuratScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Surat',
+              }}
+            />
+            <Stack.Screen 
+              name="Riwayat" 
+              component={RiwayatScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Riwayat',
+              }}
+            />
+            <Stack.Screen 
+              name="Cerita" 
+              component={CeritaScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Cerita',
+              }}
+            />
+            <Stack.Screen 
+              name="NilaiAnak" 
+              component={NilaiAnakScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Nilai Anak',
+              }}
+            />
+            <Stack.Screen 
+              name="RaporShelter" 
+              component={RaporShelterScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Rapor Shelter',
               }}
             />
             {/* Tutor screens */}
