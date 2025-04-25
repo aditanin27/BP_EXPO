@@ -49,10 +49,8 @@ export const api = {
   updateProfileImage: async (imageData) => {
     const token = await getToken();
     
-    // Create FormData for multipart/form-data request
     const formData = new FormData();
     
-    // Append the image file
     const fileUri = imageData.uri;
     const filename = fileUri.split('/').pop();
     const match = /\.(\w+)$/.exec(filename);
@@ -68,6 +66,7 @@ export const api = {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
       },
       body: formData,
     });
@@ -75,17 +74,14 @@ export const api = {
     return handleResponse(response);
   },
   
-  // Fungsi untuk mengambil daftar anak
   getChildren: async ({ page = 1, search = '', status = '' }) => {
     const token = await getToken();
     const url = new URL(`${API_BASE_URL}/anak`);
+    
+    // Add query parameters safely
     url.searchParams.set('page', page);
-    if (search) {
-      url.searchParams.set('search', search);
-    }
-    if (status) {
-      url.searchParams.set('status', status);
-    }
+    if (search) url.searchParams.set('search', search);
+    if (status) url.searchParams.set('status', status);
   
     const response = await fetch(url.toString(), {
       method: 'GET',
@@ -112,14 +108,13 @@ export const api = {
   createChild: async (childData) => {
     const token = await getToken();
     
-    // Jika ada file foto, gunakan FormData
-    if (childData.foto) {
+    // Handle file upload with FormData
+    if (childData.foto && typeof childData.foto !== 'string') {
       const formData = new FormData();
       
-      // Tambahkan semua field ke formData
+      // Append all fields to formData
       Object.keys(childData).forEach(key => {
         if (key === 'foto') {
-          // Untuk file foto
           const fileUri = childData.foto.uri;
           const filename = fileUri.split('/').pop();
           const match = /\.(\w+)$/.exec(filename);
@@ -145,7 +140,7 @@ export const api = {
       });
       return handleResponse(response);
     } else {
-      // Jika tidak ada foto, gunakan JSON biasa
+      // If no photo, use regular JSON
       const response = await fetch(`${API_BASE_URL}/anak/create`, {
         method: 'POST',
         headers: {
@@ -161,14 +156,13 @@ export const api = {
   updateChild: async (id, childData) => {
     const token = await getToken();
     
-    // Jika ada file foto, gunakan FormData
+    // Handle file upload with FormData
     if (childData.foto && typeof childData.foto !== 'string') {
       const formData = new FormData();
       
-      // Tambahkan semua field ke formData
+      // Append all fields to formData
       Object.keys(childData).forEach(key => {
-        if (key === 'foto' && typeof childData.foto !== 'string') {
-          // Untuk file foto
+        if (key === 'foto') {
           const fileUri = childData.foto.uri;
           const filename = fileUri.split('/').pop();
           const match = /\.(\w+)$/.exec(filename);
@@ -194,7 +188,7 @@ export const api = {
       });
       return handleResponse(response);
     } else {
-      // Jika tidak ada foto baru, gunakan JSON biasa
+      // If no new photo, use regular JSON
       const response = await fetch(`${API_BASE_URL}/anak/update/${id}`, {
         method: 'POST',
         headers: {
@@ -218,13 +212,14 @@ export const api = {
     });
     return handleResponse(response);
   },
-  getTutors: async (page = 1, search = '') => {
+
+  getTutors: async ({ page = 1, search = '' }) => {
     const token = await getToken();
     const url = new URL(`${API_BASE_URL}/tutor`);
+    
+    // Add query parameters safely
     url.searchParams.set('page', page);
-    if (search) {
-      url.searchParams.set('search', search);
-    }
+    if (search) url.searchParams.set('search', search);
   
     const response = await fetch(url.toString(), {
       method: 'GET',
@@ -235,10 +230,119 @@ export const api = {
     });
     return handleResponse(response);
   },
+
   getTutorDetail: async (id) => {
     const token = await getToken();
     const response = await fetch(`${API_BASE_URL}/tutor/${id}`, {
       method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  },
+
+  createTutor: async (tutorData) => {
+    const token = await getToken();
+    
+    // Handle file upload with FormData
+    if (tutorData.foto && typeof tutorData.foto !== 'string') {
+      const formData = new FormData();
+      
+      // Append all fields to formData
+      Object.keys(tutorData).forEach(key => {
+        if (key === 'foto') {
+          const fileUri = tutorData.foto.uri;
+          const filename = fileUri.split('/').pop();
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : 'image';
+          
+          formData.append('foto', {
+            uri: fileUri,
+            name: filename,
+            type,
+          });
+        } else {
+          formData.append(key, tutorData[key]);
+        }
+      });
+      
+      const response = await fetch(`${API_BASE_URL}/tutor/create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+      return handleResponse(response);
+    } else {
+      // If no photo, use regular JSON
+      const response = await fetch(`${API_BASE_URL}/tutor/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(tutorData),
+      });
+      return handleResponse(response);
+    }
+  },
+
+  updateTutor: async (id, tutorData) => {
+    const token = await getToken();
+    
+    // Handle file upload with FormData
+    if (tutorData.foto && typeof tutorData.foto !== 'string') {
+      const formData = new FormData();
+      
+      // Append all fields to formData
+      Object.keys(tutorData).forEach(key => {
+        if (key === 'foto') {
+          const fileUri = tutorData.foto.uri;
+          const filename = fileUri.split('/').pop();
+          const match = /\.(\w+)$/.exec(filename);
+          const type = match ? `image/${match[1]}` : 'image';
+          
+          formData.append('foto', {
+            uri: fileUri,
+            name: filename,
+            type,
+          });
+        } else {
+          formData.append(key, tutorData[key]);
+        }
+      });
+      
+      const response = await fetch(`${API_BASE_URL}/tutor/update/${id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+      return handleResponse(response);
+    } else {
+      // If no new photo, use regular JSON
+      const response = await fetch(`${API_BASE_URL}/tutor/update/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(tutorData),
+      });
+      return handleResponse(response);
+    }
+  },
+
+  deleteTutor: async (id) => {
+    const token = await getToken();
+    const response = await fetch(`${API_BASE_URL}/tutor/delete/${id}`, {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,

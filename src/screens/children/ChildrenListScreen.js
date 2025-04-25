@@ -8,13 +8,17 @@ import {
   Image, 
   SafeAreaView,
   TextInput,
-  Alert
+  Alert,
+  Dimensions
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchChildren, deleteChild, resetChildrenState } from '../../redux/slices/childrenSlice';
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
-import { formatBirthDate, calculateAge } from '../../utils/dateUtils';
+import { calculateAge } from '../../utils/dateUtils';
+import { getStatusCpbColor } from '../../utils/status-colors';
+
+const { width } = Dimensions.get('window');
 
 const ChildrenListScreen = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
@@ -29,19 +33,16 @@ const ChildrenListScreen = ({ navigation, route }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   
-  // Get status filter from route params
   const statusFilter = route.params?.status;
 
-  // Initial fetch
   useEffect(() => {
     dispatch(fetchChildren({ 
       page: 1, 
       search: searchQuery,
-      status: statusFilter // Pass status filter to API
+      status: statusFilter
     }));
   }, [dispatch, searchQuery, statusFilter]);
 
-  // Reset delete success state and refresh list after deletion
   useEffect(() => {
     if (deleteSuccess) {
       Alert.alert('Sukses', 'Data anak berhasil dihapus');
@@ -54,7 +55,6 @@ const ChildrenListScreen = ({ navigation, route }) => {
     }
   }, [deleteSuccess, dispatch, searchQuery, statusFilter]);
 
-  // Handle load more functionality
   const handleLoadMore = useCallback(() => {
     if (
       !isLoading && 
@@ -110,51 +110,71 @@ const ChildrenListScreen = ({ navigation, route }) => {
     );
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.childCard}
-      onPress={() => handleViewChild(item.id_anak)}
-    >
-      <View style={styles.cardContent}>
-        <Image
-          source={{ 
-            uri: item.foto_url || 'https://berbagipendidikan.org/images/default.png'
-          }}
-          style={styles.childPhoto}
-        />
-        <View style={styles.childInfo}>
-          <Text style={styles.childName}>{item.full_name}</Text>
-          {item.nick_name && (
-            <Text style={styles.childNickname}>Panggilan: {item.nick_name}</Text>
-          )}
-          <Text style={styles.childDetail}>
-            {item.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}, {calculateAge(item.tanggal_lahir)} tahun
-          </Text>
-          <Text style={styles.childDetail}>
-            Lahir: {formatBirthDate(item.tanggal_lahir)}
-          </Text>
-          <Text style={styles.childStatus}>
-            Status: <Text style={getStatusStyle(item.status_validasi)}>{item.status_validasi}</Text>
-          </Text>
+  const renderItem = ({ item }) => {
+    const statusCpbColors = getStatusCpbColor(item.status_cpb);
+
+    return (
+      <TouchableOpacity 
+        style={styles.childCard}
+        onPress={() => handleViewChild(item.id_anak)}
+      >
+        <View style={styles.statusCpbContainer}>
+          <View 
+            style={[
+              styles.statusCpbBadge, 
+              { backgroundColor: statusCpbColors.backgroundColor }
+            ]}
+          >
+            <Text 
+              style={[
+                styles.statusCpbText, 
+                { color: statusCpbColors.textColor }
+              ]}
+            >
+              {statusCpbColors.label}
+            </Text>
+          </View>
         </View>
-      </View>
-      
-      <View style={styles.actionButtons}>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.editButton]}
-          onPress={() => handleEditChild(item.id_anak)}
-        >
-          <Text style={styles.buttonText}>Edit</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.actionButton, styles.deleteButton]}
-          onPress={() => handleDeleteChild(item.id_anak, item.full_name)}
-        >
-          <Text style={[styles.buttonText, styles.deleteText]}>Hapus</Text>
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+
+        <View style={styles.cardContent}>
+          <Image
+            source={{ 
+              uri: item.foto_url || 'https://berbagipendidikan.org/images/default.png'
+            }}
+            style={styles.childPhoto}
+          />
+          <View style={styles.childInfo}>
+            <Text style={styles.childName} numberOfLines={2}>
+              {item.full_name}
+            </Text>
+            <Text style={styles.childDetail}>
+              Umur: {calculateAge(item.tanggal_lahir)} tahun
+            </Text>
+            <Text style={styles.childStatus}>
+              Status: <Text style={getStatusStyle(item.status_validasi)}>
+                {item.status_validasi}
+              </Text>
+            </Text>
+          </View>
+        </View>
+        
+        <View style={styles.actionButtons}>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.editButton]}
+            onPress={() => handleEditChild(item.id_anak)}
+          >
+            <Text style={styles.buttonText}>Edit</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={() => handleDeleteChild(item.id_anak, item.full_name)}
+          >
+            <Text style={[styles.buttonText, styles.deleteText]}>Hapus</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -171,7 +191,6 @@ const ChildrenListScreen = ({ navigation, route }) => {
     }
   };
 
-  // Footer component to show loading more indicator
   const renderFooter = () => {
     if (!isLoadingMore) return null;
     return (
@@ -181,7 +200,6 @@ const ChildrenListScreen = ({ navigation, route }) => {
     );
   };
 
-  // Determine header title and subtitle based on status filter
   const getHeaderInfo = () => {
     switch (statusFilter) {
       case 'aktif':
@@ -220,7 +238,7 @@ const ChildrenListScreen = ({ navigation, route }) => {
           value={searchQuery}
           onChangeText={(text) => {
             setSearchQuery(text);
-            setCurrentPage(1); // Reset page when searching
+            setCurrentPage(1);
           }}
         />
       </View>
@@ -310,7 +328,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     marginBottom: 15,
-    padding: 15,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -319,9 +336,28 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  statusCpbContainer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  statusCpbBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderBottomLeftRadius: 10,
+  },
+  statusCpbText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   cardContent: {
     flexDirection: 'row',
+    padding: 15,
+    alignItems: 'center',
   },
   childPhoto: {
     width: 80,
@@ -337,26 +373,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-  },
-  childNickname: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 2,
-  },
-  footerLoading: {
-    paddingVertical: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 5,
   },
   childDetail: {
     fontSize: 14,
     color: '#666',
-    marginTop: 5,
+    marginBottom: 3,
   },
   childStatus: {
     fontSize: 14,
     color: '#666',
-    marginTop: 3,
   },
   statusActive: {
     color: '#27ae60',
@@ -377,10 +403,9 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: 15,
     borderTopWidth: 1,
     borderTopColor: '#eee',
-    paddingTop: 15,
+    padding: 10,
   },
   actionButton: {
     paddingVertical: 8,
@@ -449,6 +474,17 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: 'white',
     fontWeight: 'bold',
+  },
+  statusCpbBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+    marginTop: 5,
+  },
+  statusCpbText: {
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 
