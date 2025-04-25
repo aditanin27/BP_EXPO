@@ -13,8 +13,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchChildById, deleteChild, resetChildrenState } from '../../redux/slices/childrenSlice';
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
-import { IMAGE_BASE_URL } from '../../utils/constants';
-import { formatBirthDate, calculateAge } from '../../utils/dateUtils'; // Import dari dateUtils
+import { formatBirthDate, calculateAge } from '../../utils/dateUtils';
 
 const ChildDetailScreen = ({ route, navigation }) => {
   const { childId } = route.params;
@@ -118,9 +117,7 @@ const ChildDetailScreen = ({ route, navigation }) => {
         <View style={styles.photoSection}>
           <Image
             source={{ 
-              uri: selectedChild.foto 
-                ? `${IMAGE_BASE_URL}Anak/${selectedChild.id_anak}/${selectedChild.foto}`
-                : 'https://berbagipendidikan.org/images/default.png'
+              uri: selectedChild.foto_url || 'https://berbagipendidikan.org/images/default.png'
             }}
             style={styles.childPhoto}
           />
@@ -211,10 +208,6 @@ const InfoRow = ({ label, value, valueStyle }) => (
     <Text style={[styles.infoValue, valueStyle]}>{value}</Text>
   </View>
 );
-
-// ... styles remains the same ...
-
-export default ChildDetailScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -340,3 +333,4 @@ const styles = StyleSheet.create({
   },
 });
 
+export default ChildDetailScreen;
