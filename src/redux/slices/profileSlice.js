@@ -1,11 +1,12 @@
+// src/redux/slices/profileSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { api } from '../../api';
+import { authApi } from '../../api';
 
 export const fetchProfile = createAsyncThunk(
   'profile/fetch',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.getProfile();
+      const response = await authApi.getProfile();
       if (response.success) {
         return response;
       }

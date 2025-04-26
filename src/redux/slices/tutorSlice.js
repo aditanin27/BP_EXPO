@@ -1,21 +1,16 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { api } from '../../api';
+import { tutorApi } from '../../api';
 
 export const fetchTutors = createAsyncThunk(
   'tutor/fetch',
-  async ({ page = 1, search = '' }, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await api.getTutors(page, search);
-      
-      if (response.success) {
-        return {
-          data: response.data,
-          pagination: response.pagination,
-          summary: response.summary
-        };
-      }
-      
-      return rejectWithValue(response.message || 'Failed to fetch tutors');
+      const response = await tutorApi.getAll(params);
+      return {
+        data: response.data,
+        pagination: response.pagination,
+        summary: response.summary
+      };
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to fetch tutors');
     }
@@ -26,13 +21,8 @@ export const fetchTutorDetail = createAsyncThunk(
   'tutor/fetchDetail',
   async (tutorId, { rejectWithValue }) => {
     try {
-      const response = await api.getTutorDetail(tutorId);
-      
-      if (response.success) {
-        return response.data;
-      }
-      
-      return rejectWithValue(response.message || 'Failed to fetch tutor details');
+      const response = await tutorApi.getById(tutorId);
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to fetch tutor details');
     }
@@ -83,8 +73,6 @@ const tutorSlice = createSlice({
       .addCase(fetchTutors.fulfilled, (state, action) => {
         const { data, pagination, summary } = action.payload;
         
-        // If it's the first page, replace the data
-        // Otherwise, append the new data
         state.data = pagination.current_page === 1 
           ? data 
           : [...state.data, ...data];

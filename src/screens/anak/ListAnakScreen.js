@@ -180,7 +180,7 @@ const ListAnakScreen = ({ navigation, route }) => {
     switch (status) {
       case 'aktif':
         return styles.statusActive;
-      case 'tidak aktif':
+      case 'non-aktif':
         return styles.statusInactive;
       case 'Ditolak':
         return styles.statusRejected;
@@ -207,10 +207,10 @@ const ListAnakScreen = ({ navigation, route }) => {
           title: 'Anak Binaan Aktif',
           subtitle: `Total: ${pagination.anak_aktif} anak aktif`
         };
-      case 'tidak aktif':
+      case 'non-aktif':
         return {
-          title: 'Anak Binaan Tidak Aktif',
-          subtitle: `Total: ${pagination.anak_tidak_aktif} anak tidak aktif`
+          title: 'Anak Binaan non-aktif',
+          subtitle: `Total: ${pagination.anak_tidak_aktif} anak non-aktif`
         };
       default:
         return {

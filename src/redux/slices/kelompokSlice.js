@@ -1,15 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { api } from '../../api';
+import { kelompokApi } from '../../api';
 
 export const fetchKelompok = createAsyncThunk(
   'kelompok/fetch',
   async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await api.getKelompok(params);
-      if (response.success) {
-        return response;
-      }
-      return rejectWithValue(response.message || 'Failed to fetch kelompok');
+      const response = await kelompokApi.getAll(params);
+      return response;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to fetch kelompok');
     }
@@ -20,11 +17,8 @@ export const fetchKelompokDetail = createAsyncThunk(
   'kelompok/fetchDetail',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await api.getKelompokDetail(id);
-      if (response.success) {
-        return response;
-      }
-      return rejectWithValue(response.message || 'Failed to fetch kelompok detail');
+      const response = await kelompokApi.getById(id);
+      return response;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to fetch kelompok detail');
     }
@@ -48,7 +42,6 @@ const kelompokSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Kelompok
       .addCase(fetchKelompok.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -63,7 +56,6 @@ const kelompokSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      // Fetch Kelompok Detail
       .addCase(fetchKelompokDetail.pending, (state) => {
         state.isLoading = true;
         state.error = null;

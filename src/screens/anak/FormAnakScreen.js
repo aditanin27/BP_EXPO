@@ -49,7 +49,7 @@ const FormAnakScreen = ({ route, navigation }) => {
     jarak_rumah: '',
     transportasi: '',
     foto: null,
-    status_validasi: 'tidak aktif',
+    status_validasi: 'non-aktif',
   });
 
   // Validation state
@@ -83,7 +83,7 @@ const FormAnakScreen = ({ route, navigation }) => {
         jarak_rumah: selectedAnak.jarak_rumah ? selectedAnak.jarak_rumah.toString() : '',
         transportasi: selectedAnak.transportasi || '',
         foto: selectedAnak.foto || null,
-        status_validasi: selectedAnak.status_validasi || 'tidak aktif',
+        status_validasi: selectedAnak.status_validasi || 'non-aktif',
       });
     }
   }, [isEditing, selectedAnak]);

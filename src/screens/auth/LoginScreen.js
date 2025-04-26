@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { loginUser, resetAuthError } from '../../redux/slices/authSlice';
 import Input from '../../components/Input';
@@ -56,11 +56,6 @@ const LoginScreen = () => {
       {isLoading && <LoadingOverlay />}
       
       <View style={styles.logoContainer}>
-        {/* <Image 
-          source={require('../../../assets/images/logo.png')} 
-          style={styles.logo}
-          resizeMode="contain"
-        /> */}
         <Text style={styles.title}>Berbagi Pendidikan</Text>
         <Text style={styles.subtitle}>Admin Shelter Portal</Text>
       </View>
@@ -104,11 +99,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 60,
     marginBottom: 40,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 20,
   },
   title: {
     fontSize: 24,

@@ -31,7 +31,7 @@ import TutorListScreen from '../screens/tutor/TutorListScreen';
 import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
 
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
-import { api } from '../api';
+import { authApi } from '../api';
 import KelompokListScreen from '../screens/kelompok/KelompokListScreen';
 
 const Stack = createNativeStackNavigator();
@@ -48,7 +48,7 @@ const AppNavigator = () => {
         
         if (token) {
           // Get profile data to validate token
-          const profileData = await api.getProfile();
+          const profileData = await authApi.getProfile();
           if (profileData.success) {
             dispatch(setCredentials({
               user: profileData.user,

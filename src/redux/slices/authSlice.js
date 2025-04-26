@@ -1,14 +1,14 @@
+// src/redux/slices/authSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { api } from '../../api';
+import { authApi } from '../../api';
 import { saveToken, removeToken } from '../../utils/storage';
 
 export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await api.login(credentials);
+      const response = await authApi.login(credentials);
       if (response.success) {
-        await saveToken(response.token);
         return response;
       }
       return rejectWithValue(response.message || 'Login failed');
@@ -22,8 +22,7 @@ export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await api.logout();
-      await removeToken();
+      await authApi.logout();
       return null;
     } catch (error) {
       return rejectWithValue(error.message || 'Logout failed');

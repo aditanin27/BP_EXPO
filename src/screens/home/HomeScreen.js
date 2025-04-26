@@ -2,21 +2,38 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { logoutUser } from '../../redux/slices/authSlice';
-import { fetchAnak} from '../../redux/slices/anakSlice';
+import { anakApi } from '../../api';
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { user, adminShelter } = useAppSelector((state) => state.auth);
-  const { 
-    isLoading, 
-    pagination 
-  } = useAppSelector((state) => state.anak);
+  const [anakData, setAnakData] = React.useState({
+    total: 0,
+    anak_aktif: 0,
+    anak_tidak_aktif: 0,
+    isLoading: true
+  });
 
   useEffect(() => {
-    dispatch(fetchAnak({ page: 1 }));
-  }, [dispatch]);
+    const fetchAnakData = async () => {
+      try {
+        const response = await anakApi.getAll({ page: 1 });
+        setAnakData({
+          total: response.pagination.total || 0,
+          anak_aktif: response.summary.anak_aktif || 0,
+          anak_tidak_aktif: response.summary.anak_tidak_aktif || 0,
+          isLoading: false
+        });
+      } catch (error) {
+        console.error('Failed to fetch anak data', error);
+        setAnakData(prev => ({ ...prev, isLoading: false }));
+      }
+    };
+
+    fetchAnakData();
+  }, []);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -32,7 +49,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {isLoading && <LoadingOverlay />}
+      {anakData.isLoading && <LoadingOverlay />}
       
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.header}>
@@ -63,7 +80,7 @@ const HomeScreen = ({ navigation }) => {
               style={[styles.statCard, styles.totalCard]}
               onPress={() => handleViewanak()}
             >
-              <Text style={styles.statNumber}>{pagination.total || 0}</Text>
+              <Text style={styles.statNumber}>{anakData.total}</Text>
               <Text style={styles.statLabel}>Total Anak</Text>
             </TouchableOpacity>
             
@@ -71,7 +88,7 @@ const HomeScreen = ({ navigation }) => {
               style={[styles.statCard, styles.activeCard]}
               onPress={() => handleViewanak('aktif')}
             >
-              <Text style={styles.statNumber}>{pagination.anak_aktif || 0}</Text>
+              <Text style={styles.statNumber}>{anakData.anak_aktif}</Text>
               <Text style={styles.statLabel}>Aktif</Text>
             </TouchableOpacity>
             
@@ -79,10 +96,9 @@ const HomeScreen = ({ navigation }) => {
               style={[styles.statCard, styles.inactiveCard]}
               onPress={() => handleViewanak('non-aktif')}
             >
-              <Text style={styles.statNumber}>{pagination.anak_tidak_aktif || 0}</Text>
+              <Text style={styles.statNumber}>{anakData.anak_tidak_aktif}</Text>
               <Text style={styles.statLabel}>Tidak Aktif</Text>
             </TouchableOpacity>
-            
           </View>
         </View>
 
@@ -110,24 +126,24 @@ const HomeScreen = ({ navigation }) => {
             </TouchableOpacity>
 
             <TouchableOpacity 
-  style={styles.menuCard}
-  onPress={() => navigation.navigate('TutorList')}
->
-  <View style={[styles.menuIcon, styles.tutorIcon]}>
-    <Text style={styles.iconText}>👨‍🏫</Text>
-  </View>
-  <Text style={styles.menuLabel}>Tutor</Text>
-</TouchableOpacity>
+              style={styles.menuCard}
+              onPress={() => navigation.navigate('TutorList')}
+            >
+              <View style={[styles.menuIcon, styles.tutorIcon]}>
+                <Text style={styles.iconText}>👨‍🏫</Text>
+              </View>
+              <Text style={styles.menuLabel}>Tutor</Text>
+            </TouchableOpacity>
 
-<TouchableOpacity 
-  style={styles.menuCard}
-  onPress={() => navigation.navigate('KelompokList')}
->
-  <View style={[styles.menuIcon, styles.kelompokIcon]}>
-    <Text style={styles.iconText}>👥</Text>
-  </View>
-  <Text style={styles.menuLabel}>Kelompok</Text>
-</TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.menuCard}
+              onPress={() => navigation.navigate('KelompokList')}
+            >
+              <View style={[styles.menuIcon, styles.kelompokIcon]}>
+                <Text style={styles.iconText}>👥</Text>
+              </View>
+              <Text style={styles.menuLabel}>Kelompok</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -292,7 +308,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#9b59b6', 
   },
   kelompokIcon: {
-    backgroundColor: '#27AE60', // Warna hijau yang berbeda
+    backgroundColor: '#27AE60',
   },
 });
 
