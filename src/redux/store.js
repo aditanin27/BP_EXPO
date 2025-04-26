@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import profileReducer from './slices/profileSlice';
 import childrenReducer from './slices/childrenSlice';
 import tutorReducer from './slices/tutorSlice';
+import kelompokReducer from './slices/kelompokSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export const store = configureStore({
     profile: profileReducer,
     children: childrenReducer,
     tutor: tutorReducer,
+    kelompok: kelompokReducer,
   },
 });

@@ -350,4 +350,28 @@ export const api = {
     });
     return handleResponse(response);
   },
+  getKelompok: async (params = {}) => {
+    const token = await getToken();
+    const queryString = new URLSearchParams(params).toString();
+    const response = await fetch(`${API_BASE_URL}/kelompok?${queryString}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  },
+
+  getKelompokDetail: async (id) => {
+    const token = await getToken();
+    const response = await fetch(`${API_BASE_URL}/kelompok/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  },
 };

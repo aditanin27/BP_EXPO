@@ -32,6 +32,7 @@ import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
 
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
 import { api } from '../api';
+import KelompokListScreen from '../screens/kelompok/KelompokListScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -196,6 +197,13 @@ const AppNavigator = () => {
             <Stack.Screen 
               name="TutorDetail" 
               component={TutorDetailScreen}
+              options={{
+                animation: 'slide_from_right',
+              }}
+            />
+             <Stack.Screen 
+              name="KelompokList" 
+              component={KelompokListScreen}
               options={{
                 animation: 'slide_from_right',
               }}

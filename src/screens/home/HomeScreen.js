@@ -82,6 +82,7 @@ const HomeScreen = ({ navigation }) => {
               <Text style={styles.statNumber}>{pagination.anak_tidak_aktif || 0}</Text>
               <Text style={styles.statLabel}>Tidak Aktif</Text>
             </TouchableOpacity>
+            
           </View>
         </View>
 
@@ -107,6 +108,7 @@ const HomeScreen = ({ navigation }) => {
               </View>
               <Text style={styles.menuLabel}>Profil</Text>
             </TouchableOpacity>
+
             <TouchableOpacity 
   style={styles.menuCard}
   onPress={() => navigation.navigate('TutorList')}
@@ -115,6 +117,16 @@ const HomeScreen = ({ navigation }) => {
     <Text style={styles.iconText}>👨‍🏫</Text>
   </View>
   <Text style={styles.menuLabel}>Tutor</Text>
+</TouchableOpacity>
+
+<TouchableOpacity 
+  style={styles.menuCard}
+  onPress={() => navigation.navigate('KelompokList')}
+>
+  <View style={[styles.menuIcon, styles.kelompokIcon]}>
+    <Text style={styles.iconText}>👥</Text>
+  </View>
+  <Text style={styles.menuLabel}>Kelompok</Text>
 </TouchableOpacity>
           </View>
         </View>
@@ -278,6 +290,9 @@ const styles = StyleSheet.create({
   },
   tutorIcon: {
     backgroundColor: '#9b59b6', 
+  },
+  kelompokIcon: {
+    backgroundColor: '#27AE60', // Warna hijau yang berbeda
   },
 });
 
