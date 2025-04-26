@@ -12,19 +12,19 @@ import LoginScreen from '../screens/auth/LoginScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 // Anak screens
-import ChildrenListScreen from '../screens/children/ChildrenListScreen';
-import ChildDetailScreen from '../screens/children/ChildDetailScreen';
-import ChildFormScreen from '../screens/children/ChildFormScreen';
+import ListAnakScreen from '../screens/anak/ListAnakScreen';
+import DetailAnakScreen from '../screens/anak/DetailAnakScreen';
+import FormAnakScreen from '../screens/anak/FormAnakScreen';
 
-// New Child Detail Menu Screens
-import InformasiAnakScreen from '../screens/children/childMenuScreens/InformasiAnakScreen';
-import RaportScreen from '../screens/children/childMenuScreens/RaportScreen';
-import PrestasiScreen from '../screens/children/childMenuScreens/PrestasiScreen';
-import SuratScreen from '../screens/children/childMenuScreens/SuratScreen';
-import RiwayatScreen from '../screens/children/childMenuScreens/RiwayatScreen';
-import CeritaScreen from '../screens/children/childMenuScreens/CeritaScreen';
-import NilaiAnakScreen from '../screens/children/childMenuScreens/NilaiAnakScreen';
-import RaporShelterScreen from '../screens/children/childMenuScreens/RaporShelterScreen';
+// New Anak Detail Menu Screens
+import InformasiAnakScreen from '../screens/anak/menuAnakScreens/InformasiAnakScreen';
+import RaportScreen from '../screens/anak/menuAnakScreens/RaportScreen';
+import PrestasiScreen from '../screens/anak/menuAnakScreens/PrestasiScreen';
+import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
+import RiwayatScreen from '../screens/anak/menuAnakScreens/RiwayatScreen';
+import CeritaScreen from '../screens/anak/menuAnakScreens/CeritaScreen';
+import NilaiAnakScreen from '../screens/anak/menuAnakScreens/NilaiAnakScreen';
+import RaporShelterScreen from '../screens/anak/menuAnakScreens/RaporShelterScreen';
 
 // Tutor screens
 import TutorListScreen from '../screens/tutor/TutorListScreen';
@@ -94,34 +94,34 @@ const AppNavigator = () => {
             />
             {/* Anak screens */}
             <Stack.Screen 
-              name="ChildrenList" 
-              component={ChildrenListScreen}
+              name="ListAnak" 
+              component={ListAnakScreen}
               options={{
                 animation: 'slide_from_right',
               }}
             />
             <Stack.Screen 
-              name="ChildDetail" 
-              component={ChildDetailScreen}
+              name="DetailAnak" 
+              component={DetailAnakScreen}
               options={{
                 animation: 'slide_from_right',
               }}
             />
             <Stack.Screen 
-              name="AddChild" 
-              component={ChildFormScreen}
+              name="TambahAnak" 
+              component={FormAnakScreen}
               options={{
                 animation: 'slide_from_bottom',
               }}
             />
             <Stack.Screen 
-              name="EditChild" 
-              component={ChildFormScreen}
+              name="EditAnak" 
+              component={FormAnakScreen}
               options={{
                 animation: 'slide_from_right',
               }}
             />
-            {/* Child Detail Menu Screens */}
+           
             <Stack.Screen 
               name="InformasiAnak" 
               component={InformasiAnakScreen}
@@ -186,7 +186,7 @@ const AppNavigator = () => {
                 title: 'Rapor Shelter',
               }}
             />
-            {/* Tutor screens */}
+           
             <Stack.Screen 
               name="TutorList" 
               component={TutorListScreen}

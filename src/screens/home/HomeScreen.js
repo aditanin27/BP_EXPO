@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { logoutUser } from '../../redux/slices/authSlice';
-import { fetchChildren } from '../../redux/slices/childrenSlice';
+import { fetchAnak} from '../../redux/slices/anakSlice';
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
 
@@ -12,10 +12,10 @@ const HomeScreen = ({ navigation }) => {
   const { 
     isLoading, 
     pagination 
-  } = useAppSelector((state) => state.children);
+  } = useAppSelector((state) => state.anak);
 
   useEffect(() => {
-    dispatch(fetchChildren({ page: 1 }));
+    dispatch(fetchAnak({ page: 1 }));
   }, [dispatch]);
 
   const handleLogout = () => {
@@ -26,8 +26,8 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('Profile');
   };
 
-  const handleViewChildren = (status = null) => {
-    navigation.navigate('ChildrenList', { status });
+  const handleViewanak = (status = null) => {
+    navigation.navigate('ListAnak', { status });
   };
 
   return (
@@ -61,7 +61,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.statsRow}>
             <TouchableOpacity 
               style={[styles.statCard, styles.totalCard]}
-              onPress={() => handleViewChildren()}
+              onPress={() => handleViewanak()}
             >
               <Text style={styles.statNumber}>{pagination.total || 0}</Text>
               <Text style={styles.statLabel}>Total Anak</Text>
@@ -69,7 +69,7 @@ const HomeScreen = ({ navigation }) => {
             
             <TouchableOpacity 
               style={[styles.statCard, styles.activeCard]}
-              onPress={() => handleViewChildren('aktif')}
+              onPress={() => handleViewanak('aktif')}
             >
               <Text style={styles.statNumber}>{pagination.anak_aktif || 0}</Text>
               <Text style={styles.statLabel}>Aktif</Text>
@@ -77,7 +77,7 @@ const HomeScreen = ({ navigation }) => {
             
             <TouchableOpacity 
               style={[styles.statCard, styles.inactiveCard]}
-              onPress={() => handleViewChildren('non-aktif')}
+              onPress={() => handleViewanak('non-aktif')}
             >
               <Text style={styles.statNumber}>{pagination.anak_tidak_aktif || 0}</Text>
               <Text style={styles.statLabel}>Tidak Aktif</Text>
@@ -91,9 +91,9 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.menuRow}>
             <TouchableOpacity 
               style={styles.menuCard}
-              onPress={() => handleViewChildren()}
+              onPress={() => handleViewanak()}
             >
-              <View style={[styles.menuIcon, styles.childrenIcon]}>
+              <View style={[styles.menuIcon, styles.anakIcon]}>
                 <Text style={styles.iconText}>👧</Text>
               </View>
               <Text style={styles.menuLabel}>Anak Binaan</Text>
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 10,
   },
-  childrenIcon: {
+  anakIcon: {
     backgroundColor: '#3498db',
   },
   profileIcon: {

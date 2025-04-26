@@ -74,7 +74,7 @@ export const api = {
     return handleResponse(response);
   },
   
-  getChildren: async ({ page = 1, search = '', status = '' }) => {
+  getAnak: async ({ page = 1, search = '', status = '' }) => {
     const token = await getToken();
     const url = new URL(`${API_BASE_URL}/anak`);
     
@@ -93,7 +93,7 @@ export const api = {
     return handleResponse(response);
   },
 
-  getChildById: async (id) => {
+  getAnakById: async (id) => {
     const token = await getToken();
     const response = await fetch(`${API_BASE_URL}/anak/${id}`, {
       method: 'GET',
@@ -105,17 +105,17 @@ export const api = {
     return handleResponse(response);
   },
 
-  createChild: async (childData) => {
+  createAnak: async (dataAnak) => {
     const token = await getToken();
     
     // Handle file upload with FormData
-    if (childData.foto && typeof childData.foto !== 'string') {
+    if (dataAnak.foto && typeof dataAnak.foto !== 'string') {
       const formData = new FormData();
       
       // Append all fields to formData
-      Object.keys(childData).forEach(key => {
+      Object.keys(dataAnak).forEach(key => {
         if (key === 'foto') {
-          const fileUri = childData.foto.uri;
+          const fileUri = dataAnak.foto.uri;
           const filename = fileUri.split('/').pop();
           const match = /\.(\w+)$/.exec(filename);
           const type = match ? `image/${match[1]}` : 'image';
@@ -126,7 +126,7 @@ export const api = {
             type,
           });
         } else {
-          formData.append(key, childData[key]);
+          formData.append(key, dataAnak[key]);
         }
       });
       
@@ -147,23 +147,23 @@ export const api = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(childData),
+        body: JSON.stringify(dataAnak),
       });
       return handleResponse(response);
     }
   },
 
-  updateChild: async (id, childData) => {
+  updateAnak: async (id, dataAnak) => {
     const token = await getToken();
     
     // Handle file upload with FormData
-    if (childData.foto && typeof childData.foto !== 'string') {
+    if (dataAnak.foto && typeof dataAnak.foto !== 'string') {
       const formData = new FormData();
       
       // Append all fields to formData
-      Object.keys(childData).forEach(key => {
+      Object.keys(dataAnak).forEach(key => {
         if (key === 'foto') {
-          const fileUri = childData.foto.uri;
+          const fileUri = dataAnak.foto.uri;
           const filename = fileUri.split('/').pop();
           const match = /\.(\w+)$/.exec(filename);
           const type = match ? `image/${match[1]}` : 'image';
@@ -174,7 +174,7 @@ export const api = {
             type,
           });
         } else {
-          formData.append(key, childData[key]);
+          formData.append(key, dataAnak[key]);
         }
       });
       
@@ -195,13 +195,13 @@ export const api = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(childData),
+        body: JSON.stringify(dataAnak),
       });
       return handleResponse(response);
     }
   },
 
-  deleteChild: async (id) => {
+  deleteAnak: async (id) => {
     const token = await getToken();
     const response = await fetch(`${API_BASE_URL}/anak/delete/${id}`, {
       method: 'DELETE',
