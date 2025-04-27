@@ -14,32 +14,41 @@ import LoadingOverlay from '../../../components/LoadingOverlay';
 import Button from '../../../components/Button';
 
 const RaportScreen = ({ route, navigation }) => {
-  const { selectedAnak, raportId } = route.params || {};
+  const { selectedAnak } = route.params || {};
   const dispatch = useAppDispatch();
-  const { list: raportList, isLoading, error } = useAppSelector((state) => state.raport);
+  const { list: raportList, isLoading, error, pagination } = useAppSelector((state) => state.raport);
 
   useEffect(() => {
     if (selectedAnak) {
-      dispatch(fetchRaports({ id_anak: selectedAnak.id_anak }));
+      dispatch(fetchRaports({ 
+        id_anak: selectedAnak.id_anak,
+        page: 1 
+      }));
     }
   }, [dispatch, selectedAnak]);
 
-  useEffect(() => {
-    if (raportId && raportList.length > 0) {
-      // If a specific raport ID is provided, navigate directly to its detail
-      navigation.navigate('RaportDetail', { raportId });
-    }
-  }, [raportId, raportList, navigation]);
-
   const handleRaportPress = (raport) => {
     navigation.navigate('RaportDetail', { raportId: raport.id_raport });
+  };
+
+  const handleTambahRaport = () => {
+    navigation.navigate('TambahRaport', { selectedAnak });
+  };
+
+  const handleLoadMore = () => {
+    if (!isLoading && pagination.current_page < pagination.last_page) {
+      dispatch(fetchRaports({ 
+        id_anak: selectedAnak.id_anak,
+        page: pagination.current_page + 1 
+      }));
+    }
   };
 
   const handleBack = () => {
     navigation.goBack();
   };
 
-  if (isLoading) {
+  if (isLoading && raportList.length === 0) {
     return <LoadingOverlay />;
   }
 
@@ -55,6 +64,13 @@ const RaportScreen = ({ route, navigation }) => {
       {error ? (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
+          <Button 
+            title="Coba Lagi" 
+            onPress={() => dispatch(fetchRaports({ 
+              id_anak: selectedAnak.id_anak, 
+              page: 1 
+            }))} 
+          />
         </View>
       ) : (
         <FlatList
@@ -67,6 +83,9 @@ const RaportScreen = ({ route, navigation }) => {
             />
           )}
           contentContainerStyle={styles.listContainer}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={isLoading ? <LoadingOverlay size="small" /> : null}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
@@ -76,6 +95,15 @@ const RaportScreen = ({ route, navigation }) => {
           }
         />
       )}
+
+      <View style={styles.floatingButtonContainer}>
+        <TouchableOpacity 
+          style={styles.floatingButton}
+          onPress={handleTambahRaport}
+        >
+          <Text style={styles.floatingButtonText}>+</Text>
+        </TouchableOpacity>
+      </View>
 
       <Button
         title="Kembali"
@@ -134,6 +162,29 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 20,
     right: 20,
+  },
+  floatingButtonContainer: {
+    position: 'absolute',
+    bottom: 80,
+    right: 20,
+  },
+  floatingButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#2E86DE',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+    elevation: 6,
+  },
+  floatingButtonText: {
+    fontSize: 30,
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 

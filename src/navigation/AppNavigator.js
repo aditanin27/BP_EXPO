@@ -20,6 +20,7 @@ import FormAnakScreen from '../screens/anak/FormAnakScreen';
 import InformasiAnakScreen from '../screens/anak/menuAnakScreens/InformasiAnakScreen';
 import RaportScreen from '../screens/anak/menuAnakScreens/RaportScreen';
 import RaportDetailScreen from '../screens/anak/menuAnakScreens/RaportDetailScreen';
+import RaportFormScreen from '../screens/anak/RaportFormScreen'
 import PrestasiScreen from '../screens/anak/menuAnakScreens/PrestasiScreen';
 import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
 import RiwayatScreen from '../screens/anak/menuAnakScreens/RiwayatScreen';
@@ -147,6 +148,15 @@ const AppNavigator = () => {
                 title: 'Detail Raport',
               }}
             />
+            <Stack.Screen 
+  name="TambahRaport" 
+  component={RaportFormScreen}
+  options={{
+    animation: 'slide_from_bottom',
+    title: 'Tambah Raport',
+  }}
+/>
+
             <Stack.Screen 
               name="Prestasi" 
               component={PrestasiScreen}
