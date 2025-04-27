@@ -21,6 +21,7 @@ import InformasiAnakScreen from '../screens/anak/menuAnakScreens/InformasiAnakSc
 import RaportScreen from '../screens/anak/menuAnakScreens/RaportScreen';
 import RaportDetailScreen from '../screens/anak/menuAnakScreens/RaportDetailScreen';
 import RaportFormScreen from '../screens/anak/RaportFormScreen'
+import RaportEditScreen from '../screens/anak/RaportEditScreen';
 import PrestasiScreen from '../screens/anak/menuAnakScreens/PrestasiScreen';
 import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
 import RiwayatScreen from '../screens/anak/menuAnakScreens/RiwayatScreen';
@@ -154,6 +155,14 @@ const AppNavigator = () => {
   options={{
     animation: 'slide_from_bottom',
     title: 'Tambah Raport',
+  }}
+/>
+<Stack.Screen 
+  name="EditRaport" 
+  component={RaportEditScreen}
+  options={{
+    animation: 'slide_from_right',
+    title: 'Edit Raport',
   }}
 />
 

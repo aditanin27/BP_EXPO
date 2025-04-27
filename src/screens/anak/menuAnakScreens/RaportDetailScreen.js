@@ -8,8 +8,7 @@ import {
   Image, 
   TouchableOpacity,
   Dimensions,
-  Modal,
-  ActivityIndicator
+  Modal
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { fetchRaportDetail } from '../../../redux/slices/raportSlice';
@@ -32,6 +31,12 @@ const RaportDetailScreen = ({ route, navigation }) => {
 
   const handleBack = () => {
     navigation.goBack();
+  };
+
+  const handleEdit = () => {
+    if (raport && !isLoading) {
+      navigation.navigate('EditRaport', { raport });
+    }
   };
 
   const openImageModal = (imageUrl) => {
@@ -100,7 +105,7 @@ const RaportDetailScreen = ({ route, navigation }) => {
           <View style={styles.photoCard}>
             <Text style={styles.cardTitle}>Foto Raport</Text>
             <View style={styles.photoGrid}>
-              {raport.foto_rapor.map((foto, index) => (
+              {raport.foto_rapor.map((foto) => (
                 <TouchableOpacity 
                   key={foto.id_foto} 
                   style={styles.photoContainer}
@@ -117,11 +122,25 @@ const RaportDetailScreen = ({ route, navigation }) => {
           </View>
         )}
 
-        <Button
-          title="Kembali"
-          onPress={handleBack}
-          style={styles.buttonBack}
-        />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={[
+              styles.editButton, 
+              (isLoading || error) && styles.editButtonDisabled
+            ]} 
+            onPress={handleEdit}
+            disabled={isLoading || error}
+          >
+            <Text style={styles.editButtonText}>
+              {isLoading ? 'Memuat...' : 'Edit'}
+            </Text>
+          </TouchableOpacity>
+          <Button
+            title="Kembali"
+            onPress={handleBack}
+            style={styles.backButton}
+          />
+        </View>
       </ScrollView>
 
       <Modal
@@ -157,6 +176,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     padding: 15,
+    paddingBottom: 80,
   },
   header: {
     marginBottom: 15,
@@ -247,8 +267,28 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  buttonBack: {
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
     marginTop: 10,
+  },
+  editButton: {
+    backgroundColor: '#2E86DE',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editButtonDisabled: {
+    backgroundColor: '#A9A9A9', // Disabled gray
+  },
+  editButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  backButton: {
     backgroundColor: '#555',
   },
   errorContainer: {
