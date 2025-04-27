@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -7,32 +7,19 @@ import {
   TouchableOpacity, 
   ScrollView, 
   SafeAreaView,
-  ActivityIndicator,
-  FlatList
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchAnakById } from '../../redux/slices/anakSlice';
-import { fetchRaports } from '../../redux/slices/raportSlice';
 import LoadingOverlay from '../../components/LoadingOverlay';
-import RaportCard from '../../components/RaportCard';
 
 const DetailAnakScreen = ({ route, navigation }) => {
   const { idAnak } = route.params;
   const dispatch = useAppDispatch();
   const { selectedAnak, isLoading, error } = useAppSelector((state) => state.anak);
-  const { list: raportList, isLoading: isLoadingRaport } = useAppSelector((state) => state.raport);
-  const [showRaport, setShowRaport] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAnakById(idAnak));
   }, [dispatch, idAnak]);
-
-  // Fetch raport data when anak data is loaded
-  useEffect(() => {
-    if (selectedAnak) {
-      dispatch(fetchRaports({ id_anak: idAnak }));
-    }
-  }, [dispatch, selectedAnak, idAnak]);
 
   const menuItems = [
     { 
@@ -88,19 +75,6 @@ const DetailAnakScreen = ({ route, navigation }) => {
     navigation.goBack();
   };
 
-  const handleRaportPress = (raport) => {
-    // Navigate to raport detail screen
-    navigation.navigate('Raport', { 
-      anakName: selectedAnak?.full_name,
-      selectedAnak: selectedAnak,
-      raportId: raport.id_raport 
-    });
-  };
-
-  const toggleRaportSection = () => {
-    setShowRaport(!showRaport);
-  };
-
   if (isLoading) {
     return <LoadingOverlay />;
   }
@@ -145,35 +119,6 @@ const DetailAnakScreen = ({ route, navigation }) => {
           <Text style={styles.anakName}>{selectedAnak.full_name}</Text>
           {selectedAnak.nick_name && (
             <Text style={styles.anakNickname}>"{selectedAnak.nick_name}"</Text>
-          )}
-        </View>
-
-        {/* Raport Section */}
-        <View style={styles.raportSection}>
-          <TouchableOpacity 
-            style={styles.sectionHeader}
-            onPress={toggleRaportSection}
-          >
-            <Text style={styles.sectionTitle}>Data Raport</Text>
-            <Text style={styles.toggleIcon}>{showRaport ? '▼' : '▶'}</Text>
-          </TouchableOpacity>
-          
-          {showRaport && (
-            <View style={styles.raportContent}>
-              {isLoadingRaport ? (
-                <ActivityIndicator size="small" color="#2E86DE" style={styles.loader} />
-              ) : raportList && raportList.length > 0 ? (
-                raportList.map((raport) => (
-                  <RaportCard 
-                    key={raport.id_raport} 
-                    raport={raport} 
-                    onPress={() => handleRaportPress(raport)}
-                  />
-                ))
-              ) : (
-                <Text style={styles.emptyText}>Belum ada data raport</Text>
-              )}
-            </View>
           )}
         </View>
 
@@ -235,45 +180,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     fontStyle: 'italic',
-  },
-  raportSection: {
-    backgroundColor: 'white',
-    margin: 15,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: '#f9f9f9',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: '#2E86DE',
-  },
-  toggleIcon: {
-    fontSize: 18,
-    color: '#2E86DE',
-  },
-  raportContent: {
-    padding: 15,
-  },
-  loader: {
-    marginVertical: 20,
-  },
-  emptyText: {
-    textAlign: 'center',
-    color: '#666',
-    padding: 15,
   },
   menuSection: {
     margin: 15,
