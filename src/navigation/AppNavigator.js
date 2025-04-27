@@ -19,6 +19,7 @@ import FormAnakScreen from '../screens/anak/FormAnakScreen';
 // New Anak Detail Menu Screens
 import InformasiAnakScreen from '../screens/anak/menuAnakScreens/InformasiAnakScreen';
 import RaportScreen from '../screens/anak/menuAnakScreens/RaportScreen';
+import RaportDetailScreen from '../screens/anak/menuAnakScreens/RaportDetailScreen';
 import PrestasiScreen from '../screens/anak/menuAnakScreens/PrestasiScreen';
 import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
 import RiwayatScreen from '../screens/anak/menuAnakScreens/RiwayatScreen';
@@ -136,6 +137,14 @@ const AppNavigator = () => {
               options={{
                 animation: 'slide_from_right',
                 title: 'Raport',
+              }}
+            />
+            <Stack.Screen 
+              name="RaportDetail" 
+              component={RaportDetailScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Detail Raport',
               }}
             />
             <Stack.Screen 

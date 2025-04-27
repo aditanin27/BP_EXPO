@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -6,20 +6,33 @@ import {
   Image, 
   TouchableOpacity, 
   ScrollView, 
-  SafeAreaView 
+  SafeAreaView,
+  ActivityIndicator,
+  FlatList
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { fetchAnakById } from '../../redux/slices/anakSlice';
+import { fetchRaports } from '../../redux/slices/raportSlice';
 import LoadingOverlay from '../../components/LoadingOverlay';
+import RaportCard from '../../components/RaportCard';
 
 const DetailAnakScreen = ({ route, navigation }) => {
   const { idAnak } = route.params;
   const dispatch = useAppDispatch();
   const { selectedAnak, isLoading, error } = useAppSelector((state) => state.anak);
+  const { list: raportList, isLoading: isLoadingRaport } = useAppSelector((state) => state.raport);
+  const [showRaport, setShowRaport] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAnakById(idAnak));
   }, [dispatch, idAnak]);
+
+  // Fetch raport data when anak data is loaded
+  useEffect(() => {
+    if (selectedAnak) {
+      dispatch(fetchRaports({ id_anak: idAnak }));
+    }
+  }, [dispatch, selectedAnak, idAnak]);
 
   const menuItems = [
     { 
@@ -75,6 +88,19 @@ const DetailAnakScreen = ({ route, navigation }) => {
     navigation.goBack();
   };
 
+  const handleRaportPress = (raport) => {
+    // Navigate to raport detail screen
+    navigation.navigate('Raport', { 
+      anakName: selectedAnak?.full_name,
+      selectedAnak: selectedAnak,
+      raportId: raport.id_raport 
+    });
+  };
+
+  const toggleRaportSection = () => {
+    setShowRaport(!showRaport);
+  };
+
   if (isLoading) {
     return <LoadingOverlay />;
   }
@@ -122,18 +148,50 @@ const DetailAnakScreen = ({ route, navigation }) => {
           )}
         </View>
 
+        {/* Raport Section */}
+        <View style={styles.raportSection}>
+          <TouchableOpacity 
+            style={styles.sectionHeader}
+            onPress={toggleRaportSection}
+          >
+            <Text style={styles.sectionTitle}>Data Raport</Text>
+            <Text style={styles.toggleIcon}>{showRaport ? '▼' : '▶'}</Text>
+          </TouchableOpacity>
+          
+          {showRaport && (
+            <View style={styles.raportContent}>
+              {isLoadingRaport ? (
+                <ActivityIndicator size="small" color="#2E86DE" style={styles.loader} />
+              ) : raportList && raportList.length > 0 ? (
+                raportList.map((raport) => (
+                  <RaportCard 
+                    key={raport.id_raport} 
+                    raport={raport} 
+                    onPress={() => handleRaportPress(raport)}
+                  />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>Belum ada data raport</Text>
+              )}
+            </View>
+          )}
+        </View>
+
         {/* Menu Grid */}
-        <View style={styles.menuGrid}>
-          {menuItems.map((menu, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={styles.menuItem}
-              onPress={() => navigateToScreen(menu.screen)}
-            >
-              <Text style={styles.menuIcon}>{menu.icon}</Text>
-              <Text style={styles.menuTitle}>{menu.title}</Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.menuSection}>
+          <Text style={styles.menuSectionTitle}>Menu</Text>
+          <View style={styles.menuGrid}>
+            {menuItems.map((menu, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={styles.menuItem}
+                onPress={() => navigateToScreen(menu.screen)}
+              >
+                <Text style={styles.menuIcon}>{menu.icon}</Text>
+                <Text style={styles.menuTitle}>{menu.title}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -147,6 +205,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexGrow: 1,
+    paddingBottom: 20,
   },
   photoSection: {
     alignItems: 'center',
@@ -177,16 +236,63 @@ const styles = StyleSheet.create({
     color: '#666',
     fontStyle: 'italic',
   },
+  raportSection: {
+    backgroundColor: 'white',
+    margin: 15,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 3,
+    overflow: 'hidden',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+    backgroundColor: '#f9f9f9',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#2E86DE',
+  },
+  toggleIcon: {
+    fontSize: 18,
+    color: '#2E86DE',
+  },
+  raportContent: {
+    padding: 15,
+  },
+  loader: {
+    marginVertical: 20,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#666',
+    padding: 15,
+  },
+  menuSection: {
+    margin: 15,
+  },
+  menuSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333',
+  },
   menuGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 10,
+    justifyContent: 'space-between',
   },
   menuItem: {
-    width: '40%',
+    width: '48%',
     aspectRatio: 1,
-    margin: 10,
+    margin: 5,
     backgroundColor: 'white',
     borderRadius: 10,
     justifyContent: 'center',
