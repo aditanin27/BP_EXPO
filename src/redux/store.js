@@ -5,6 +5,7 @@ import anakReducer from './slices/anakSlice';
 import tutorReducer from './slices/tutorSlice';
 import kelompokReducer from './slices/kelompokSlice';
 import raportReducer from './slices/raportSlice';
+import prestasiReducer from './slices/prestasiSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export const store = configureStore({
     tutor: tutorReducer,
     kelompok: kelompokReducer,
     raport: raportReducer,
+    prestasi: prestasiReducer,
   },
 });

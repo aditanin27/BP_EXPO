@@ -22,12 +22,14 @@ import RaportScreen from '../screens/anak/menuAnakScreens/RaportScreen';
 import RaportDetailScreen from '../screens/anak/menuAnakScreens/RaportDetailScreen';
 import RaportFormScreen from '../screens/anak/RaportFormScreen'
 import RaportEditScreen from '../screens/anak/RaportEditScreen';
-import PrestasiScreen from '../screens/anak/menuAnakScreens/PrestasiScreen';
 import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
 import RiwayatScreen from '../screens/anak/menuAnakScreens/RiwayatScreen';
 import CeritaScreen from '../screens/anak/menuAnakScreens/CeritaScreen';
 import NilaiAnakScreen from '../screens/anak/menuAnakScreens/NilaiAnakScreen';
 import RaporShelterScreen from '../screens/anak/menuAnakScreens/RaporShelterScreen';
+import PrestasiScreen from '../screens/anak/menuAnakScreens/PrestasiScreen';
+import PrestasiDetailScreen from '../screens/anak/PrestasiDetailScreen';
+import PrestasiFormScreen from '../screens/anak/PrestasiFormScreen';
 
 // Tutor screens
 import TutorListScreen from '../screens/tutor/TutorListScreen';
@@ -166,14 +168,38 @@ const AppNavigator = () => {
   }}
 />
 
-            <Stack.Screen 
-              name="Prestasi" 
-              component={PrestasiScreen}
-              options={{
-                animation: 'slide_from_right',
-                title: 'Prestasi',
-              }}
-            />
+<Stack.Screen 
+  name="Prestasi" 
+  component={PrestasiScreen}
+  options={{
+    animation: 'slide_from_right',
+    title: 'Prestasi',
+  }}
+/>
+<Stack.Screen 
+  name="PrestasiDetail" 
+  component={PrestasiDetailScreen}
+  options={{
+    animation: 'slide_from_right',
+    title: 'Detail Prestasi',
+  }}
+/>
+<Stack.Screen 
+  name="TambahPrestasi" 
+  component={PrestasiFormScreen}
+  options={{
+    animation: 'slide_from_bottom',
+    title: 'Tambah Prestasi',
+  }}
+/>
+<Stack.Screen 
+  name="EditPrestasi" 
+  component={PrestasiFormScreen}
+  options={{
+    animation: 'slide_from_right',
+    title: 'Edit Prestasi',
+  }}
+/>  
             <Stack.Screen 
               name="Surat" 
               component={SuratScreen}
