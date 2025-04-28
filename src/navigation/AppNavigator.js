@@ -31,6 +31,8 @@ import PrestasiFormScreen from '../screens/anak/PrestasiFormScreen';
 import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
 import SuratDetailScreen from '../screens/anak/SuratDetailScreen';
 import SuratAbFormScreen from '../screens/anak/SuratAbFormScreen';
+import HistoriDetailScreen from '../screens/anak/HistoriDetailScreen';
+import HistoriFormScreen from '../screens/anak/HistoriFormScreen';
 
 // Tutor screens
 import TutorListScreen from '../screens/tutor/TutorListScreen';
@@ -275,6 +277,30 @@ const AppNavigator = () => {
                 title: 'Tambah Surat',
               }}
             />
+             <Stack.Screen 
+    name="HistoriDetail" 
+    component={HistoriDetailScreen}
+    options={{
+      animation: 'slide_from_right',
+      title: 'Detail Riwayat',
+    }}
+  />
+  <Stack.Screen 
+    name="TambahHistori" 
+    component={HistoriFormScreen}
+    options={{
+      animation: 'slide_from_bottom',
+      title: 'Tambah Riwayat',
+    }}
+  />
+  <Stack.Screen 
+    name="EditHistori" 
+    component={HistoriFormScreen}
+    options={{
+      animation: 'slide_from_right',
+      title: 'Edit Riwayat',
+    }}
+  />
           </>
         )}
       </Stack.Navigator>

@@ -7,7 +7,7 @@ import kelompokReducer from './slices/kelompokSlice';
 import raportReducer from './slices/raportSlice';
 import prestasiReducer from './slices/prestasiSlice';
 import suratAbReducer from './slices/suratAbSlice';
-
+import historiReducer from './slices/historiSlice';
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -18,5 +18,6 @@ export const store = configureStore({
     raport: raportReducer,
     prestasi: prestasiReducer,
     suratAb: suratAbReducer,
+    histori: historiReducer,
   },
 });
