@@ -21,7 +21,6 @@ import InformasiAnakScreen from '../screens/anak/menuAnakScreens/InformasiAnakSc
 import RaportScreen from '../screens/anak/menuAnakScreens/RaportScreen';
 import RaportDetailScreen from '../screens/anak/menuAnakScreens/RaportDetailScreen';
 import RaportFormScreen from '../screens/anak/RaportFormScreen'
-import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
 import RiwayatScreen from '../screens/anak/menuAnakScreens/RiwayatScreen';
 import CeritaScreen from '../screens/anak/menuAnakScreens/CeritaScreen';
 import NilaiAnakScreen from '../screens/anak/menuAnakScreens/NilaiAnakScreen';
@@ -29,10 +28,15 @@ import RaporShelterScreen from '../screens/anak/menuAnakScreens/RaporShelterScre
 import PrestasiScreen from '../screens/anak/menuAnakScreens/PrestasiScreen';
 import PrestasiDetailScreen from '../screens/anak/PrestasiDetailScreen';
 import PrestasiFormScreen from '../screens/anak/PrestasiFormScreen';
+import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
+import SuratDetailScreen from '../screens/anak/SuratDetailScreen';
+import SuratAbFormScreen from '../screens/anak/SuratAbFormScreen';
 
 // Tutor screens
 import TutorListScreen from '../screens/tutor/TutorListScreen';
 import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
+
+
 
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
 import { authApi } from '../api';
@@ -192,14 +196,7 @@ const AppNavigator = () => {
     title: 'Edit Prestasi',
   }}
 />  
-            <Stack.Screen 
-              name="Surat" 
-              component={SuratScreen}
-              options={{
-                animation: 'slide_from_right',
-                title: 'Surat',
-              }}
-            />
+
             <Stack.Screen 
               name="Riwayat" 
               component={RiwayatScreen}
@@ -252,6 +249,30 @@ const AppNavigator = () => {
               component={KelompokListScreen}
               options={{
                 animation: 'slide_from_right',
+              }}
+            />
+            <Stack.Screen 
+              name="Surat" 
+              component={SuratScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Surat',
+              }}
+            />
+            <Stack.Screen 
+              name="SuratDetail" 
+              component={SuratDetailScreen}
+              options={{
+                animation: 'slide_from_right',
+                title: 'Detail Surat',
+              }}
+            />
+            <Stack.Screen 
+              name="TambahSurat" 
+              component={SuratAbFormScreen}
+              options={{
+                animation: 'slide_from_bottom',
+                title: 'Tambah Surat',
               }}
             />
           </>
