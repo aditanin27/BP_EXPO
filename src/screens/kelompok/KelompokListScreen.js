@@ -47,8 +47,7 @@ const KelompokListScreen = ({ navigation }) => {
   };
 
   const handleItemPress = (item) => {
-    // Navigasi ke detail kelompok (bisa ditambahkan nanti)
-    // navigation.navigate('KelompokDetail', { id: item.id_kelompok });
+    navigation.navigate('DetailKelompok', { idKelompok: item.id_kelompok });
   };
 
   const handleBack = () => {

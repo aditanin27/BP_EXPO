@@ -38,11 +38,14 @@ import HistoriFormScreen from '../screens/anak/HistoriFormScreen';
 import TutorListScreen from '../screens/tutor/TutorListScreen';
 import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
 
-
+//Kelompok screen
+import KelompokListScreen from '../screens/kelompok/KelompokListScreen';
+import DetailKelompokScreen from '../screens/kelompok/DetailKelompokScreen';
 
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
 import { authApi } from '../api';
-import KelompokListScreen from '../screens/kelompok/KelompokListScreen';
+
+
 
 const Stack = createNativeStackNavigator();
 
@@ -246,13 +249,21 @@ const AppNavigator = () => {
                 animation: 'slide_from_right',
               }}
             />
-             <Stack.Screen 
-              name="KelompokList" 
-              component={KelompokListScreen}
-              options={{
-                animation: 'slide_from_right',
-              }}
-            />
+           <Stack.Screen 
+  name="KelompokList" 
+  component={KelompokListScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="DetailKelompok" 
+  component={DetailKelompokScreen}
+  options={{
+    animation: 'slide_from_right',
+    title: 'Detail Kelompok',
+  }}
+/>
             <Stack.Screen 
               name="Surat" 
               component={SuratScreen}
