@@ -144,6 +144,15 @@ const HomeScreen = ({ navigation }) => {
               </View>
               <Text style={styles.menuLabel}>Kelompok</Text>
             </TouchableOpacity>
+            <TouchableOpacity 
+  style={styles.menuCard}
+  onPress={() => navigation.navigate('KeluargaList')}
+>
+  <View style={[styles.menuIcon, styles.keluargaIcon]}>
+    <Text style={styles.iconText}>👪</Text>
+  </View>
+  <Text style={styles.menuLabel}>Keluarga</Text>
+</TouchableOpacity>
           </View>
         </View>
 
@@ -309,6 +318,9 @@ const styles = StyleSheet.create({
   },
   kelompokIcon: {
     backgroundColor: '#27AE60',
+  },
+  keluargaIcon: {
+    backgroundColor: '#FF9500',
   },
 });
 

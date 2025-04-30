@@ -42,6 +42,11 @@ import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
 import KelompokListScreen from '../screens/kelompok/KelompokListScreen';
 import DetailKelompokScreen from '../screens/kelompok/DetailKelompokScreen';
 
+//Keluarga Screen
+import KeluargaListScreen from '../screens/keluarga/KeluargaListScreen';
+import KeluargaDetailScreen from '../screens/keluarga/KeluargaDetailScreen';
+import TambahKeluargaScreen from '../screens/keluarga/formKeluarga/TambahKeluargaScreen';
+
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
 import { authApi } from '../api';
 
@@ -312,6 +317,35 @@ const AppNavigator = () => {
       title: 'Edit Riwayat',
     }}
   />
+  {/* Rute-rute Keluarga */}
+<Stack.Screen 
+  name="KeluargaList" 
+  component={KeluargaListScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="KeluargaDetail" 
+  component={KeluargaDetailScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="TambahKeluarga" 
+  component={TambahKeluargaScreen}
+  options={{
+    animation: 'slide_from_bottom',
+  }}
+/>
+<Stack.Screen 
+  name="EditKeluarga" 
+  component={TambahKeluargaScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
           </>
         )}
       </Stack.Navigator>

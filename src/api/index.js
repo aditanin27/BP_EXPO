@@ -7,4 +7,5 @@ export { raportApi } from './raport';
 export { prestasiApi } from './prestasi';
 export { suratAbApi } from './suratAb';  // Add this line
 export { historiApi } from './histori';
+export { keluargaApi } from './keluarga'; // Add keluarga API export
 export { fetchWithAuth, handleResponse, createFormData } from './utils';
