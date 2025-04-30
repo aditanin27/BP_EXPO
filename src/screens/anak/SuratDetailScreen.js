@@ -232,8 +232,7 @@ const SuratDetailScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  // ... (previous styles remain the same)
-  // You can copy the styles from the previous implementation
+  
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
