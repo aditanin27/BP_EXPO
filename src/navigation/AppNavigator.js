@@ -41,6 +41,9 @@ import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
 //Kelompok screen
 import KelompokListScreen from '../screens/kelompok/KelompokListScreen';
 import DetailKelompokScreen from '../screens/kelompok/DetailKelompokScreen';
+import FormKelompokScreen from '../screens/kelompok/FormKelompokScreen';
+import AnakKelompokScreen from '../screens/kelompok/AnakKelompokScreen';
+import TambahAnakKelompokScreen from '../screens/kelompok/TambahAnakKelompokScreen';
 
 //Keluarga Screen
 import KeluargaListScreen from '../screens/keluarga/KeluargaListScreen';
@@ -257,21 +260,47 @@ const AppNavigator = () => {
                 animation: 'slide_from_right',
               }}
             />
-           <Stack.Screen 
-  name="KelompokList" 
-  component={KelompokListScreen}
-  options={{
-    animation: 'slide_from_right',
-  }}
-/>
-<Stack.Screen 
-  name="DetailKelompok" 
-  component={DetailKelompokScreen}
-  options={{
-    animation: 'slide_from_right',
-    title: 'Detail Kelompok',
-  }}
-/>
+             {/* Kelompok Routes */}
+  <Stack.Screen 
+    name="KelompokList" 
+    component={KelompokListScreen}
+    options={{
+      animation: 'slide_from_right',
+      headerShown: false
+    }}
+  />
+  <Stack.Screen 
+    name="DetailKelompok" 
+    component={DetailKelompokScreen}
+    options={{
+      animation: 'slide_from_right',
+      headerShown: false
+    }}
+  />
+  <Stack.Screen 
+    name="FormKelompok" 
+    component={FormKelompokScreen}
+    options={{
+      animation: 'slide_from_bottom',
+      headerShown: false
+    }}
+  />
+  <Stack.Screen 
+    name="AnakKelompok" 
+    component={AnakKelompokScreen}
+    options={{
+      animation: 'slide_from_right',
+      headerShown: false
+    }}
+  />
+  <Stack.Screen 
+    name="TambahAnakKelompok" 
+    component={TambahAnakKelompokScreen}
+    options={{
+      animation: 'slide_from_right',
+      headerShown: false
+    }}
+  />
             <Stack.Screen 
               name="Surat" 
               component={SuratScreen}
