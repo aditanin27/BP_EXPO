@@ -1,10 +1,14 @@
+// src/screens/KeluargaStepEmpatScreen.js
+
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
   ScrollView,
-  Switch
+  Switch,
+  TouchableOpacity,
+  Platform
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { 
@@ -15,103 +19,122 @@ import {
 import Input from '../../../components/Input';
 import DropdownSelect from '../../../components/DropdownSelect';
 import FormButtons from '../../../components/FormButtons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const KeluargaStepEmpatScreen = () => {
   const dispatch = useAppDispatch();
   const { formData } = useAppSelector((state) => state.keluarga);
-  
-  // Local state for form errors
+
   const [errors, setErrors] = useState({});
-  
-  // Local state for whether the father is deceased
   const [isDeceased, setIsDeceased] = useState(false);
-  
-  // Check if father is deceased based on form data
+
+  // helper to format Date object as DD-MM-YYYY
+  const formatDMY = (d) => {
+    const day   = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year  = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+  // parse string "DD-MM-YYYY" into Date
+  const parseDMY = (str) => {
+    const [day, month, year] = str.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  // birth date picker state
+  const initialBirth = formData.ayah.tanggal_lahir_ayah
+    ? parseDMY(formData.ayah.tanggal_lahir_ayah)
+    : new Date();
+  const [birthDate, setBirthDate] = useState(initialBirth);
+  const [showBirthPicker, setShowBirthPicker] = useState(false);
+
+  // death date picker state
+  const initialDeath = formData.ayah.tanggal_kematian_ayah
+    ? parseDMY(formData.ayah.tanggal_kematian_ayah)
+    : new Date();
+  const [deathDate, setDeathDate] = useState(initialDeath);
+  const [showDeathPicker, setShowDeathPicker] = useState(false);
+
+  // sync deceased flag with existing form data
   useEffect(() => {
-    setIsDeceased(!!formData.ayah.tanggal_kematian);
-  }, [formData.ayah.tanggal_kematian]);
-  
-  // Handler for updating form data
+    setIsDeceased(!!formData.ayah.tanggal_kematian_ayah);
+  }, [formData.ayah.tanggal_kematian_ayah]);
+
   const handleInputChange = (name, value) => {
     dispatch(updateFormData({
       section: 'ayah',
       data: { [name]: value }
     }));
-    
-    // Clear error for this field if exists
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: null }));
     }
   };
-  
-  // Toggle deceased status
+
   const toggleDeceasedStatus = (value) => {
     setIsDeceased(value);
-    
-    // If toggled off, clear death-related fields
     if (!value) {
       dispatch(updateFormData({
         section: 'ayah',
-        data: { 
-          tanggal_kematian: '',
-          penyebab_kematian: ''
+        data: {
+          tanggal_kematian_ayah: '',
+          penyebab_kematian_ayah: ''
         }
       }));
     }
   };
-  
-  // Validate form before proceeding to next step
+
+  const onBirthChange = (event, selectedDate) => {
+    setShowBirthPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setBirthDate(selectedDate);
+      const dmy = formatDMY(selectedDate);
+      handleInputChange('tanggal_lahir_ayah', dmy);
+    }
+  };
+  const showBirthDatePicker = () => setShowBirthPicker(true);
+
+  const onDeathChange = (event, selectedDate) => {
+    setShowDeathPicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setDeathDate(selectedDate);
+      const dmy = formatDMY(selectedDate);
+      handleInputChange('tanggal_kematian_ayah', dmy);
+    }
+  };
+  const showDeathDatePicker = () => setShowDeathPicker(true);
+
   const validateForm = () => {
     const newErrors = {};
     const { ayah } = formData;
-    
-    // Basic validation - most fields are optional for father info
-    // but we'll ensure proper format where applicable
-    
-    // NIK validation (if provided)
+
+    // optional NIK but if given must be 16 digits
     if (ayah.nik_ayah && (!/^\d+$/.test(ayah.nik_ayah) || ayah.nik_ayah.length !== 16)) {
       newErrors.nik_ayah = 'NIK harus 16 digit angka';
     }
-    
-    // Death date validation (if deceased is selected)
+
+    // if deceased, require death date & reason
     if (isDeceased) {
-      if (!ayah.tanggal_kematian) {
-        newErrors.tanggal_kematian = 'Tanggal kematian wajib diisi';
-      }
-      
-      if (!ayah.penyebab_kematian) {
-        newErrors.penyebab_kematian = 'Penyebab kematian wajib diisi';
-      }
+      if (!ayah.tanggal_kematian_ayah) newErrors.tanggal_kematian_ayah = 'Tanggal kematian wajib diisi';
+      if (!ayah.penyebab_kematian_ayah) newErrors.penyebab_kematian_ayah = 'Penyebab kematian wajib diisi';
     }
-    
-    // Check status_ortu value from keluarga section to determine if father info is required
+
+    // check if father info is required by status_ortu
     const { status_ortu } = formData.keluarga;
     const fatherInfoRequired = status_ortu !== 'yatim' && status_ortu !== 'yatim piatu';
-    
-    // If father info is required based on status_ortu
-    if (fatherInfoRequired) {
-      if (!ayah.nama_ayah) {
-        newErrors.nama_ayah = 'Nama ayah wajib diisi';
-      }
+    if (fatherInfoRequired && !ayah.nama_ayah) {
+      newErrors.nama_ayah = 'Nama ayah wajib diisi';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
-  // Handler for next button
+
   const handleNext = () => {
-    if (validateForm()) {
-      dispatch(nextStep());
-    }
+    if (validateForm()) dispatch(nextStep());
   };
-  
-  // Handler for back button
-  const handleBack = () => {
-    dispatch(prevStep());
-  };
-  
-  // Income range options
+  const handleBack = () => dispatch(prevStep());
+
+  // options
   const incomeOptions = [
     { label: 'Di bawah Rp 500.000', value: 'dibawah_500k' },
     { label: 'Rp 500.000 - Rp 1.500.000', value: '500k_1500k' },
@@ -122,8 +145,6 @@ const KeluargaStepEmpatScreen = () => {
     { label: 'Rp 7.000.000 - Rp 10.000.000', value: '7000k_10000k' },
     { label: 'Di atas Rp 10.000.000', value: 'diatas_10000k' },
   ];
-  
-  // Religion options
   const religionOptions = [
     { label: 'Islam', value: 'Islam' },
     { label: 'Kristen', value: 'Kristen' },
@@ -132,19 +153,18 @@ const KeluargaStepEmpatScreen = () => {
     { label: 'Budha', value: 'Budha' },
     { label: 'Konghucu', value: 'Konghucu' },
   ];
-  
-  // Check if father info is needed based on status_ortu
+
   const { status_ortu } = formData.keluarga;
   const isFatherInfoNeeded = status_ortu !== 'yatim' && status_ortu !== 'yatim piatu';
-  
+
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       keyboardShouldPersistTaps="handled"
     >
       <Text style={styles.title}>Informasi Ayah</Text>
-      
+
       {!isFatherInfoNeeded ? (
         <View style={styles.notRequiredContainer}>
           <Text style={styles.notRequiredText}>
@@ -156,75 +176,77 @@ const KeluargaStepEmpatScreen = () => {
         </View>
       ) : (
         <View style={styles.formContainer}>
-          {/* Basic Information */}
+          {/* Data Diri */}
           <Text style={styles.sectionTitle}>Data Diri</Text>
-          
           <Input
             label="NIK"
             value={formData.ayah.nik_ayah}
-            onChangeText={(value) => handleInputChange('nik_ayah', value)}
+            onChangeText={v => handleInputChange('nik_ayah', v)}
             placeholder="Masukkan NIK ayah"
             keyboardType="number-pad"
             maxLength={16}
             error={errors.nik_ayah}
           />
-          
           <Input
             label="Nama Ayah *"
             value={formData.ayah.nama_ayah}
-            onChangeText={(value) => handleInputChange('nama_ayah', value)}
+            onChangeText={v => handleInputChange('nama_ayah', v)}
             placeholder="Masukkan nama lengkap ayah"
             error={errors.nama_ayah}
           />
-          
           <DropdownSelect
             label="Agama"
             value={formData.ayah.agama_ayah}
             options={religionOptions}
-            onValueChange={(value) => handleInputChange('agama_ayah', value)}
+            onValueChange={v => handleInputChange('agama_ayah', v)}
             placeholder="Pilih agama"
             error={errors.agama_ayah}
           />
-          
           <Input
             label="Tempat Lahir"
             value={formData.ayah.tempat_lahir_ayah}
-            onChangeText={(value) => handleInputChange('tempat_lahir_ayah', value)}
+            onChangeText={v => handleInputChange('tempat_lahir_ayah', v)}
             placeholder="Masukkan tempat lahir"
             error={errors.tempat_lahir_ayah}
           />
-          
-          <Input
-            label="Tanggal Lahir"
-            value={formData.ayah.tanggal_lahir_ayah}
-            onChangeText={(value) => handleInputChange('tanggal_lahir_ayah', value)}
-            placeholder="Format: YYYY-MM-DD"
-            error={errors.tanggal_lahir_ayah}
-          />
-          
-          {/* Address & Income */}
+
+          {/* Tanggal Lahir */}
+          <Text style={styles.sectionTitle}>Tanggal Lahir *</Text>
+          <TouchableOpacity onPress={showBirthDatePicker} style={styles.dateInput}>
+            <Text>{formData.ayah.tanggal_lahir_ayah || formatDMY(birthDate)}</Text>
+          </TouchableOpacity>
+          {errors.tanggal_lahir_ayah && <Text style={styles.errorText}>{errors.tanggal_lahir_ayah}</Text>}
+          {showBirthPicker && (
+            <DateTimePicker
+              value={birthDate}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={onBirthChange}
+              maximumDate={new Date()}
+            />
+          )}
+
+          {/* Alamat & Penghasilan */}
           <Text style={styles.sectionTitle}>Alamat & Penghasilan</Text>
-          
           <Input
             label="Alamat"
             value={formData.ayah.alamat_ayah}
-            onChangeText={(value) => handleInputChange('alamat_ayah', value)}
+            onChangeText={v => handleInputChange('alamat_ayah', v)}
             placeholder="Masukkan alamat lengkap"
-            multiline={true}
+            multiline
             numberOfLines={3}
             error={errors.alamat_ayah}
           />
-          
           <DropdownSelect
             label="Penghasilan"
             value={formData.ayah.penghasilan_ayah}
             options={incomeOptions}
-            onValueChange={(value) => handleInputChange('penghasilan_ayah', value)}
+            onValueChange={v => handleInputChange('penghasilan_ayah', v)}
             placeholder="Pilih rentang penghasilan"
             error={errors.penghasilan_ayah}
           />
-          
-          {/* Death Information */}
+
+          {/* Meninggal? */}
           <View style={styles.toggleSection}>
             <Text style={styles.toggleLabel}>Sudah Meninggal?</Text>
             <Switch
@@ -234,21 +256,28 @@ const KeluargaStepEmpatScreen = () => {
               thumbColor={isDeceased ? '#2E86DE' : '#f4f3f4'}
             />
           </View>
-          
+
           {isDeceased && (
             <View style={styles.conditionalSection}>
-              <Input
-                label="Tanggal Kematian *"
-                value={formData.ayah.tanggal_kematian_ayah}
-                onChangeText={(value) => handleInputChange('tanggal_kematian_ayah', value)}
-                placeholder="Format: YYYY-MM-DD"
-                error={errors.tanggal_kematian_ayah}
-              />
-              
+              <Text style={styles.sectionTitle}>Tanggal Kematian *</Text>
+              <TouchableOpacity onPress={showDeathDatePicker} style={styles.dateInput}>
+                <Text>{formData.ayah.tanggal_kematian_ayah || formatDMY(deathDate)}</Text>
+              </TouchableOpacity>
+              {errors.tanggal_kematian_ayah && <Text style={styles.errorText}>{errors.tanggal_kematian_ayah}</Text>}
+              {showDeathPicker && (
+                <DateTimePicker
+                  value={deathDate}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  onChange={onDeathChange}
+                  maximumDate={new Date()}
+                />
+              )}
+
               <Input
                 label="Penyebab Kematian *"
                 value={formData.ayah.penyebab_kematian_ayah}
-                onChangeText={(value) => handleInputChange('penyebab_kematian_ayah', value)}
+                onChangeText={v => handleInputChange('penyebab_kematian_ayah', v)}
                 placeholder="Masukkan penyebab kematian"
                 error={errors.penyebab_kematian_ayah}
               />
@@ -256,8 +285,7 @@ const KeluargaStepEmpatScreen = () => {
           )}
         </View>
       )}
-      
-      {/* Navigation Buttons */}
+
       <FormButtons
         onNext={handleNext}
         onBack={handleBack}
@@ -302,6 +330,16 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
     paddingBottom: 5,
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 12,
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 4,
   },
   toggleSection: {
     flexDirection: 'row',

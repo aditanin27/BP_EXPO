@@ -98,10 +98,18 @@ const KeluargaListScreen = ({ navigation }) => {
     );
   };
   
-  // Navigate back to previous screen
+  // Navigate back to Home screen
+  // const handleBack = () => {
+  //   navigation.navigate('Home');
+  // };
+  
   const handleBack = () => {
-    navigation.goBack();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+    });
   };
+  
   
   // Render each family card
   const renderItem = ({ item }) => (
