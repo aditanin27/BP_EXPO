@@ -46,6 +46,9 @@ import DetailKelompokScreen from '../screens/kelompok/DetailKelompokScreen';
 import KeluargaListScreen from '../screens/keluarga/KeluargaListScreen';
 import KeluargaDetailScreen from '../screens/keluarga/KeluargaDetailScreen';
 import TambahKeluargaScreen from '../screens/keluarga/formKeluarga/TambahKeluargaScreen';
+import KeluargaFormSelectionScreen from '../screens/keluarga/KeluargaFormSelectionScreen';
+import PengajuanAnakScreen from '../screens/keluarga/PengajuanAnakScreen';
+import PengajuanAnakFormScreen from '../screens/keluarga/PengajuanAnakFormScreen';
 
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
 import { authApi } from '../api';
@@ -342,6 +345,27 @@ const AppNavigator = () => {
 <Stack.Screen 
   name="EditKeluarga" 
   component={TambahKeluargaScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="KeluargaFormSelection" 
+  component={KeluargaFormSelectionScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="PengajuanAnak" 
+  component={PengajuanAnakScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="PengajuanAnakForm" 
+  component={PengajuanAnakFormScreen}
   options={{
     animation: 'slide_from_right',
   }}

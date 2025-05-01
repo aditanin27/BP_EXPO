@@ -71,7 +71,8 @@ const KeluargaListScreen = ({ navigation }) => {
   
   // Navigate to add new family screen
   const handleTambahKeluarga = () => {
-    navigation.navigate('TambahKeluarga');
+    // Navigate to selection screen instead of directly to form
+    navigation.navigate('KeluargaFormSelection');
   };
   
   // Navigate to family detail screen
