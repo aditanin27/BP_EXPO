@@ -9,7 +9,7 @@ export const anakApi = {
    * @param {string} [params.search=''] - Kata kunci pencarian
    * @param {string} [params.status=''] - Filter status anak
    * @param {number} [params.per_page=10] - Jumlah item per halaman
-   * @returns {Promise} Daftar anak
+   * @returns {Promise} - Daftar anak
    */
   getAll: async (params = {}) => {
     const { 
@@ -32,7 +32,7 @@ export const anakApi = {
   /**
    * Mendapatkan detail anak berdasarkan ID
    * @param {number|string} id - ID anak
-   * @returns {Promise} Detail anak
+   * @returns {Promise} - Detail anak
    */
   getById: async (id) => {
     return fetchWithAuth(`/anak/${id}`);
@@ -41,7 +41,7 @@ export const anakApi = {
   /**
    * Membuat data anak baru
    * @param {Object} dataAnak - Data anak yang akan dibuat
-   * @returns {Promise} Respon pembuatan anak
+   * @returns {Promise} - Respon pembuatan anak
    */
   create: async (dataAnak) => {
     // Cek apakah ada file foto yang akan diupload
@@ -71,7 +71,7 @@ export const anakApi = {
    * Memperbarui data anak
    * @param {number|string} id - ID anak yang akan diperbarui
    * @param {Object} dataAnak - Data anak yang akan diupdate
-   * @returns {Promise} Respon update anak
+   * @returns {Promise} - Respon update anak
    */
   update: async (id, dataAnak) => {
     // Cek apakah ada file foto yang akan diupload
@@ -100,7 +100,7 @@ export const anakApi = {
   /**
    * Menghapus data anak
    * @param {number|string} id - ID anak yang akan dihapus
-   * @returns {Promise} Respon penghapusan anak
+   * @returns {Promise} - Respon penghapusan anak
    */
   delete: async (id) => {
     return fetchWithAuth(`/anak/delete/${id}`, {
@@ -112,7 +112,7 @@ export const anakApi = {
    * Mengupload foto anak
    * @param {number|string} id - ID anak
    * @param {File} foto - File foto yang akan diupload
-   * @returns {Promise} Respon upload foto
+   * @returns {Promise} - Respon upload foto
    */
   uploadFoto: async (id, foto) => {
     const formData = new FormData();
@@ -130,9 +130,20 @@ export const anakApi = {
   /**
    * Mengambil foto anak
    * @param {number|string} id - ID anak
-   * @returns {Promise} URL atau data foto anak
+   * @returns {Promise} - URL atau data foto anak
    */
   getFoto: async (id) => {
     return fetchWithAuth(`/anak/${id}/foto`);
+  },
+  
+  /**
+   * Mengubah status anak antara 'aktif' dan 'non-aktif'
+   * @param {number|string} id - ID anak
+   * @returns {Promise} - Respon perubahan status anak
+   */
+  toggleStatus: async (id) => {
+    return fetchWithAuth(`/anak/toggle-status/${id}`, {
+      method: 'POST'
+    });
   },
 };

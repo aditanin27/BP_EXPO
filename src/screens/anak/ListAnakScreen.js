@@ -12,7 +12,7 @@ import {
   Dimensions
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { fetchAnak, deleteAnak, resetAnakState } from '../../redux/slices/anakSlice';
+import { fetchAnak, deleteAnak, resetAnakState, toggleAnakStatus } from '../../redux/slices/anakSlice';
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import { calculateAge } from '../../utils/dateUtils';
@@ -28,7 +28,9 @@ const ListAnakScreen = ({ navigation, route }) => {
     isLoadingMore, 
     error, 
     deleteSuccess, 
-    pagination 
+    pagination,
+    toggleStatusSuccess,
+    isTogglingStatus
   } = useAppSelector((state) => state.anak);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,6 +56,19 @@ const ListAnakScreen = ({ navigation, route }) => {
       }));
     }
   }, [deleteSuccess, dispatch, searchQuery, statusFilter]);
+  
+  // Handle toggle status success
+  useEffect(() => {
+    if (toggleStatusSuccess) {
+      Alert.alert('Sukses', 'Status anak berhasil diubah');
+      dispatch(resetAnakState());
+      dispatch(fetchAnak({ 
+        page: 1, 
+        search: searchQuery,
+        status: statusFilter 
+      }));
+    }
+  }, [toggleStatusSuccess, dispatch, searchQuery, statusFilter]);
 
   const handleLoadMore = useCallback(() => {
     if (
@@ -109,9 +124,31 @@ const ListAnakScreen = ({ navigation, route }) => {
       ]
     );
   };
+  
+  // Handle toggle status
+  const handleToggleStatus = (idAnak, anakName, currentStatus) => {
+    const newStatus = currentStatus === 'aktif' ? 'non-aktif' : 'aktif';
+    const action = currentStatus === 'aktif' ? 'menonaktifkan' : 'mengaktifkan';
+    
+    Alert.alert(
+      `Konfirmasi ${action} status`,
+      `Apakah Anda yakin ingin ${action} status anak ${anakName}?`,
+      [
+        {
+          text: 'Batal',
+          style: 'cancel',
+        },
+        {
+          text: 'Ya',
+          onPress: () => dispatch(toggleAnakStatus(idAnak)),
+        },
+      ]
+    );
+  };
 
   const renderItem = ({ item }) => {
     const statusCpbColors = getStatusCpbColor(item.status_cpb);
+    const isActive = item.status_validasi === 'aktif';
 
     return (
       <TouchableOpacity 
@@ -159,6 +196,23 @@ const ListAnakScreen = ({ navigation, route }) => {
         </View>
         
         <View style={styles.actionButtons}>
+          {/* Toggle Status Button */}
+          <TouchableOpacity 
+            style={[
+              styles.actionButton, 
+              isActive ? styles.deactivateButton : styles.activateButton
+            ]}
+            onPress={() => handleToggleStatus(item.id_anak, item.full_name, item.status_validasi)}
+            disabled={isTogglingStatus}
+          >
+            <Text style={[
+              styles.actionButtonText, 
+              isActive ? styles.deactivateText : styles.activateText
+            ]}>
+              {isActive ? 'Non-aktifkan' : 'Aktifkan'}
+            </Text>
+          </TouchableOpacity>
+          
           <TouchableOpacity 
             style={[styles.actionButton, styles.editButton]}
             onPress={() => handleEditAnak(item.id_anak)}
@@ -409,9 +463,9 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     paddingVertical: 8,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     borderRadius: 5,
-    marginLeft: 10,
+    marginLeft: 5,
   },
   editButton: {
     backgroundColor: '#3498db',
@@ -421,12 +475,34 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e74c3c',
   },
+  activateButton: {
+    backgroundColor: '#27ae60',
+  },
+  deactivateButton: {
+    backgroundColor: '#f39c12',
+  },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+    fontSize: 12,
   },
   deleteText: {
     color: '#e74c3c',
+  },
+  activateText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  deactivateText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  actionButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12,
   },
   errorContainer: {
     flex: 1,
@@ -485,6 +561,10 @@ const styles = StyleSheet.create({
   statusCpbText: {
     fontSize: 12,
     fontWeight: '600',
+  },
+  footerLoading: {
+    padding: 10,
+    alignItems: 'center',
   },
 });
 

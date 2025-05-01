@@ -70,6 +70,18 @@ export const deleteAnak = createAsyncThunk(
   }
 );
 
+export const toggleAnakStatus = createAsyncThunk(
+  'anak/toggleStatus',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await anakApi.toggleStatus(id);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message || 'Failed to toggle anak status');
+    }
+  }
+);
+
 const anakSlice = createSlice({
   name: 'anak',
   initialState: {
@@ -91,6 +103,8 @@ const anakSlice = createSlice({
     createSuccess: false,
     updateSuccess: false,
     deleteSuccess: false,
+    toggleStatusSuccess: false,
+    isTogglingStatus: false,
   },
   reducers: {
     resetAnakState: (state) => {
@@ -98,6 +112,7 @@ const anakSlice = createSlice({
       state.createSuccess = false;
       state.updateSuccess = false;
       state.deleteSuccess = false;
+      state.toggleStatusSuccess = false;
     },
     clearSlectedAnak: (state) => {
       state.selectedAnak = null;
@@ -246,9 +261,52 @@ const anakSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
         state.deleteSuccess = false;
-      });
-  },
-});
-
-export const { resetAnakState, clearSlectedAnak } = anakSlice.actions;
-export default anakSlice.reducer;
+      })
+      
+      // Handle toggle status
+      .addCase(toggleAnakStatus.pending, (state) => {
+        state.isTogglingStatus = true;
+        state.error = null;
+        state.toggleStatusSuccess = false;
+      })
+      .addCase(toggleAnakStatus.fulfilled, (state, action) => {
+        state.isTogglingStatus = false;
+        state.toggleStatusSuccess = true;
+        
+        // Find the anak in the list and update its status
+        const { id_anak, status_validasi } = action.payload;
+        const index = state.list.findIndex(anak => anak.id_anak === id_anak);
+        
+        if (index !== -1) {
+          // Update status counters
+          const oldStatus = state.list[index].status_validasi?.toLowerCase();
+          const newStatus = status_validasi.toLowerCase();
+          
+          if (oldStatus !== newStatus) {
+            if (newStatus === 'aktif') {
+              state.pagination.anak_aktif += 1;
+              state.pagination.anak_tidak_aktif -= 1;
+            } else {
+              state.pagination.anak_aktif -= 1;
+              state.pagination.anak_tidak_aktif += 1;
+            } }
+          
+            // Update the anak in the list
+            state.list[index].status_validasi = status_validasi;
+          }
+          
+          // Also update the selectedAnak if it's the same anak
+          if (state.selectedAnak && state.selectedAnak.id_anak === id_anak) {
+            state.selectedAnak.status_validasi = status_validasi;
+          }
+        })
+        .addCase(toggleAnakStatus.rejected, (state, action) => {
+          state.isTogglingStatus = false;
+          state.error = action.payload;
+          state.toggleStatusSuccess = false;
+        });
+    },
+  });
+  
+  export const { resetAnakState, clearSlectedAnak } = anakSlice.actions;
+  export default anakSlice.reducer;
