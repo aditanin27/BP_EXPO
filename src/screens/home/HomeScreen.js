@@ -1,10 +1,22 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  SafeAreaView, 
+  TouchableOpacity, 
+  Dimensions,
+  Platform
+} from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { logoutUser } from '../../redux/slices/authSlice';
 import { anakApi } from '../../api';
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
+
+const { width, height } = Dimensions.get('window');
+const isSmallScreen = width < 375;
 
 const HomeScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -47,112 +59,101 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('ListAnak', { status });
   };
 
+  const renderStatCard = (value, label, color, onPress) => (
+    <TouchableOpacity 
+      style={[styles.statCard, { backgroundColor: color }]}
+      onPress={onPress}
+    >
+      <Text style={styles.statNumber}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+
+  const renderMenuIcon = (emoji, backgroundColor, onPress, label) => (
+    <TouchableOpacity 
+      style={styles.menuCard}
+      onPress={onPress}
+    >
+      <View style={[styles.menuIcon, { backgroundColor }]}>
+        <Text style={styles.iconText}>{emoji}</Text>
+      </View>
+      <Text style={styles.menuLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       {anakData.isLoading && <LoadingOverlay />}
       
-      <ScrollView contentContainerStyle={styles.scrollView}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.header}>
           <Text style={styles.welcomeText}>Selamat Datang,</Text>
-          <Text style={styles.nameText}>{adminShelter?.nama_lengkap || user?.username}</Text>
+          <Text 
+            style={styles.nameText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {adminShelter?.nama_lengkap || user?.username}
+          </Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Informasi Shelter</Text>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Shelter:</Text>
-            <Text style={styles.infoValue}>{adminShelter?.shelter?.nama_shelter || '-'}</Text>
+            <Text style={styles.infoValue}>
+              {adminShelter?.shelter?.nama_shelter || '-'}
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Wilayah Binaan:</Text>
-            <Text style={styles.infoValue}>{adminShelter?.wilbin?.nama_wilbin || '-'}</Text>
+            <Text style={styles.infoValue}>
+              {adminShelter?.wilbin?.nama_wilbin || '-'}
+            </Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Kantor Cabang:</Text>
-            <Text style={styles.infoValue}>{adminShelter?.kacab?.nama_kacab || '-'}</Text>
+            <Text style={styles.infoValue}>
+              {adminShelter?.kacab?.nama_kacab || '-'}
+            </Text>
           </View>
         </View>
 
         <View style={styles.statsContainer}>
           <Text style={styles.sectionTitle}>Data Anak Binaan</Text>
           <View style={styles.statsRow}>
-            <TouchableOpacity 
-              style={[styles.statCard, styles.totalCard]}
-              onPress={() => handleViewanak()}
-            >
-              <Text style={styles.statNumber}>{anakData.total}</Text>
-              <Text style={styles.statLabel}>Total Anak</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.statCard, styles.activeCard]}
-              onPress={() => handleViewanak('aktif')}
-            >
-              <Text style={styles.statNumber}>{anakData.anak_aktif}</Text>
-              <Text style={styles.statLabel}>Aktif</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.statCard, styles.inactiveCard]}
-              onPress={() => handleViewanak('non-aktif')}
-            >
-              <Text style={styles.statNumber}>{anakData.anak_tidak_aktif}</Text>
-              <Text style={styles.statLabel}>Tidak Aktif</Text>
-            </TouchableOpacity>
+            {renderStatCard(
+              anakData.total,
+              'Total Anak',
+              '#3498db',
+              () => handleViewanak()
+            )}
+            {renderStatCard(
+              anakData.anak_aktif,
+              'Aktif',
+              '#2ecc71',
+              () => handleViewanak('aktif')
+            )}
+            {renderStatCard(
+              anakData.anak_tidak_aktif,
+              'Tidak Aktif',
+              '#e74c3c',
+              () => handleViewanak('non-aktif')
+            )}
           </View>
         </View>
 
         <View style={styles.menuContainer}>
           <Text style={styles.sectionTitle}>Menu</Text>
-          <View style={styles.menuRow}>
-            <TouchableOpacity 
-              style={styles.menuCard}
-              onPress={() => handleViewanak()}
-            >
-              <View style={[styles.menuIcon, styles.anakIcon]}>
-                <Text style={styles.iconText}>👧</Text>
-              </View>
-              <Text style={styles.menuLabel}>Anak Binaan</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.menuCard}
-              onPress={handleViewProfile}
-            >
-              <View style={[styles.menuIcon, styles.profileIcon]}>
-                <Text style={styles.iconText}>👤</Text>
-              </View>
-              <Text style={styles.menuLabel}>Profil</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.menuCard}
-              onPress={() => navigation.navigate('TutorList')}
-            >
-              <View style={[styles.menuIcon, styles.tutorIcon]}>
-                <Text style={styles.iconText}>👨‍🏫</Text>
-              </View>
-              <Text style={styles.menuLabel}>Tutor</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.menuCard}
-              onPress={() => navigation.navigate('KelompokList')}
-            >
-              <View style={[styles.menuIcon, styles.kelompokIcon]}>
-                <Text style={styles.iconText}>👥</Text>
-              </View>
-              <Text style={styles.menuLabel}>Kelompok</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-  style={styles.menuCard}
-  onPress={() => navigation.navigate('KeluargaList')}
->
-  <View style={[styles.menuIcon, styles.keluargaIcon]}>
-    <Text style={styles.iconText}>👪</Text>
-  </View>
-  <Text style={styles.menuLabel}>Keluarga</Text>
-</TouchableOpacity>
+          <View style={styles.menuGrid}>
+            {renderMenuIcon('👧', '#3498db', () => handleViewanak(), 'Anak Binaan')}
+            {renderMenuIcon('👤', '#2ecc71', handleViewProfile, 'Profil')}
+            {renderMenuIcon('👨‍🏫', '#9b59b6', () => navigation.navigate('TutorList'), 'Tutor')}
+            {renderMenuIcon('👥', '#27AE60', () => navigation.navigate('KelompokList'), 'Kelompok')}
+            {renderMenuIcon('👪', '#FF9500', () => navigation.navigate('KeluargaList'), 'Keluarga')}
           </View>
         </View>
 
@@ -175,152 +176,151 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   scrollView: {
-    padding: 20,
+    padding: width * 0.05,
+    paddingBottom: 30,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: height * 0.02,
   },
   welcomeText: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     color: '#555',
   },
   nameText: {
-    fontSize: 24,
+    fontSize: isSmallScreen ? 22 : 24,
     fontWeight: 'bold',
     color: '#2E86DE',
+    maxWidth: width * 0.8,
   },
   card: {
     backgroundColor: 'white',
     borderRadius: 10,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 3,
+    padding: width * 0.04,
+    marginBottom: height * 0.02,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: height * 0.015,
     color: '#333',
   },
   infoRow: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: height * 0.01,
   },
   infoLabel: {
-    width: '35%',
-    fontSize: 16,
+    width: '40%',
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#555',
     fontWeight: '500',
   },
   infoValue: {
     flex: 1,
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#333',
   },
   statsContainer: {
-    marginBottom: 20,
+    marginBottom: height * 0.02,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 16 : 18,
     fontWeight: 'bold',
-    marginBottom: 15,
+    marginBottom: height * 0.015,
     color: '#333',
   },
   statsRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
   statCard: {
-    flex: 1,
+    width: width * 0.28,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 15,
+    padding: width * 0.03,
     borderRadius: 10,
-    marginHorizontal: 5,
-  },
-  totalCard: {
-    backgroundColor: '#3498db',
-  },
-  activeCard: {
-    backgroundColor: '#2ecc71',
-  },
-  inactiveCard: {
-    backgroundColor: '#e74c3c',
+    marginVertical: height * 0.005,
   },
   statNumber: {
-    fontSize: 24,
+    fontSize: width * 0.06,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 5,
+    marginBottom: 3,
   },
   statLabel: {
-    fontSize: 14,
+    fontSize: width * 0.03,
     color: 'white',
+    textAlign: 'center',
   },
   menuContainer: {
-    marginBottom: 20,
+    marginBottom: height * 0.02,
   },
-  menuRow: {
+  menuGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-around', 
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   menuCard: {
-    flex: 1,
+    width: width * 0.43,
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 10,
-    padding: 15,
-    marginHorizontal: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
+    padding: width * 0.04,
+    marginVertical: height * 0.01,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   menuIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: width * 0.15,
+    height: width * 0.15,
+    borderRadius: width * 0.075,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
-  },
-  anakIcon: {
-    backgroundColor: '#3498db',
-  },
-  profileIcon: {
-    backgroundColor: '#2ecc71',
+    marginBottom: height * 0.01,
   },
   iconText: {
-    fontSize: 30,
+    fontSize: width * 0.08,
   },
   menuLabel: {
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     color: '#333',
+    textAlign: 'center',
   },
   buttonContainer: {
-    marginTop: 10,
+    marginTop: height * 0.02,
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 400,
   },
   logoutButton: {
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: '#ff3b30',
+    width: '100%',
   },
   logoutText: {
     color: '#ff3b30',
-  },
-  tutorIcon: {
-    backgroundColor: '#9b59b6', 
-  },
-  kelompokIcon: {
-    backgroundColor: '#27AE60',
-  },
-  keluargaIcon: {
-    backgroundColor: '#FF9500',
+    fontSize: isSmallScreen ? 14 : 16,
   },
 });
 
