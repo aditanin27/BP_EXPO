@@ -1,5 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+// import util formatting tanggal
+import { formatBirthDate } from '../../../utils/dateUtils';
 
 const InformasiAnakScreen = ({ route }) => {
   const { selectedAnak } = route.params;
@@ -22,7 +24,8 @@ const InformasiAnakScreen = ({ route }) => {
     'Nama Panggilan': selectedAnak.nick_name,
     'Jenis Kelamin': selectedAnak.jenis_kelamin,
     'Tempat Lahir': selectedAnak.tempat_lahir,
-    'Tanggal Lahir': selectedAnak.tanggal_lahir,
+    // format tanggal lahir menggunakan util
+    'Tanggal Lahir': formatBirthDate(selectedAnak.tanggal_lahir),
     'Agama': selectedAnak.agama,
     'Anak Ke': `${selectedAnak.anak_ke} dari ${selectedAnak.dari_bersaudara} bersaudara`,
   };
