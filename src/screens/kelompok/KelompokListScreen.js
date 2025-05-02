@@ -34,7 +34,6 @@ const KelompokListScreen = ({ navigation }) => {
  const [refreshing, setRefreshing] = useState(false);
  const [currentPage, setCurrentPage] = useState(1);
  
- // Load initial data
  useEffect(() => {
    loadData();
    
@@ -44,7 +43,6 @@ const KelompokListScreen = ({ navigation }) => {
    };
  }, []);
  
- // Handle delete success
  useEffect(() => {
    if (deleteSuccess) {
      Alert.alert('Sukses', 'Kelompok berhasil dihapus');
@@ -123,7 +121,7 @@ const KelompokListScreen = ({ navigation }) => {
        <Text style={styles.cardTitle}>{item.nama_kelompok}</Text>
        <View style={styles.levelBadge}>
          <Text style={styles.levelText}>
-           {item.level_anak_binaan?.nama_level_binaan || 'Tidak ada level'}
+           {item.level_anak_binaan?.nama_level || 'Tidak ada level'}
          </Text>
        </View>
      </View>
@@ -245,7 +243,6 @@ const KelompokListScreen = ({ navigation }) => {
        />
      </View>
      
-     {/* Floating Add Button */}
      <TouchableOpacity 
        style={styles.floatingButton}
        onPress={handleCreateKelompok}

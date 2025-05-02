@@ -66,12 +66,14 @@ export const fetchLevelAnakBinaan = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await kelompokApi.getLevels();
-      return response.data;
+      console.log('Level Response:', response);
+      return response.data || [];
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch level anak binaan');
+      console.error('Level Fetch Error:', error);
+      return rejectWithValue(error.message || 'Failed to fetch levels');
     }
   }
-);
+ );
 
 export const fetchAvailableChildren = createAsyncThunk(
   'kelompok/fetchAvailableChildren',

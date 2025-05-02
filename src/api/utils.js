@@ -39,9 +39,26 @@ export const fetchWithAuth = async (url, options = {}) => {
   };
 
   const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
-  const response = await fetch(fullUrl, mergedOptions);
   
-  return handleResponse(response);
+  try {
+    const response = await fetch(fullUrl, mergedOptions);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Fetch Error - Full Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: fullUrl,
+        responseText: errorText
+      });
+      throw new Error(`HTTP error! status: ${response.status}, text: ${errorText}`);
+    }
+    
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Fetch Authentication Error:', error);
+    throw error;
+  }
 };
 
 export const createFormData = (data) => {
