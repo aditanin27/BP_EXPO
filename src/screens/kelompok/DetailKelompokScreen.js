@@ -237,6 +237,7 @@ const DetailKelompokScreen = ({ route, navigation }) => {
  );
 };
 
+export default DetailKelompokScreen;
 const styles = StyleSheet.create({
  container: {
    flex: 1,
@@ -396,4 +397,3 @@ const styles = StyleSheet.create({
  },
 });
 
-export default DetailKelompokScreen;

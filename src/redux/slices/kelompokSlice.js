@@ -201,8 +201,12 @@ const kelompokSlice = createSlice({
       })
       .addCase(fetchKelompokDetail.fulfilled, (state, action) => {
         state.isLoadingDetail = false;
-        state.detail = action.payload.data;
-      })
+        state.detail = {
+            ...action.payload.data,
+            level_anak_binaan: action.payload.data.level_anak_binaan || { nama_level_binaan: 'Tidak Ada Level' },
+            jumlah_anggota: action.payload.data.anak_count || 0
+        };
+    })
       .addCase(fetchKelompokDetail.rejected, (state, action) => {
         state.isLoadingDetail = false;
         state.error = action.payload;

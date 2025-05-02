@@ -120,9 +120,9 @@ const KelompokListScreen = ({ navigation }) => {
      <View style={styles.cardHeader}>
        <Text style={styles.cardTitle}>{item.nama_kelompok}</Text>
        <View style={styles.levelBadge}>
-         <Text style={styles.levelText}>
-           {item.level_anak_binaan?.nama_level || 'Tidak ada level'}
-         </Text>
+       <Text style={styles.levelText}>
+    {item.level_anak_binaan?.nama_level_binaan || 'Tidak ada level'}
+</Text>
        </View>
      </View>
      
