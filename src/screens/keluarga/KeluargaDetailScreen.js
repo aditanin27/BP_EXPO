@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -6,8 +6,7 @@ import {
   ScrollView, 
   TouchableOpacity, 
   SafeAreaView,
-  Alert,
-  ActivityIndicator
+  Alert
 } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { 
@@ -18,7 +17,6 @@ import {
 } from '../../redux/slices/keluargaSlice';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import CardSection from '../../components/CardSection';
-import AnggotaKeluargaList from '../../components/AnggotaKeluarga';
 
 const KeluargaDetailScreen = ({ route, navigation }) => {
   const { idKeluarga } = route.params;
@@ -106,6 +104,111 @@ const KeluargaDetailScreen = ({ route, navigation }) => {
   }
 
   const { keluarga, anak = [] } = selectedKeluarga;
+
+  const renderAnakList = () => {
+    if (anak.length === 0) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Belum ada data anak dalam keluarga ini</Text>
+          <TouchableOpacity 
+            style={styles.addButton}
+            onPress={handleAddAnak}
+          >
+            <Text style={styles.addButtonText}>Tambah Anggota</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View>
+        {anak.map((anakItem) => (
+          <TouchableOpacity 
+            key={anakItem.id_anak} 
+            style={styles.anakItem}
+            onPress={() => handleViewAnak(anakItem.id_anak)}
+          >
+            <View style={styles.anakInfo}>
+              <Text style={styles.anakName}>{anakItem.full_name}</Text>
+              {anakItem.nick_name && (
+                <Text style={styles.anakNickname}>"{anakItem.nick_name}"</Text>
+              )}
+              <Text style={styles.anakDetail}>
+                {anakItem.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'} • {getAgeText(anakItem.tanggal_lahir)}
+              </Text>
+              <View style={styles.statusContainer}>
+                <View style={[styles.statusDot, { backgroundColor: getStatusColor(anakItem.status_validasi) }]} />
+                <Text style={[styles.statusText, { color: getStatusColor(anakItem.status_validasi) }]}>
+                  {getStatusText(anakItem.status_validasi)}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+        
+        <TouchableOpacity 
+          style={styles.addMoreButton}
+          onPress={handleAddAnak}
+        >
+          <Text style={styles.addMoreButtonText}>+ Tambah Anggota Lain</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  // Helper functions for anak list
+  const getAgeText = (dob) => {
+    if (!dob) return "Umur tidak diketahui";
+    
+    try {
+      const [day, month, year] = dob.split('-').map(Number);
+      const birthDate = new Date(year, month - 1, day);
+      const today = new Date();
+      
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      
+      return `${age} tahun`;
+    } catch (error) {
+      return "Umur tidak diketahui";
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'aktif':
+        return '#27ae60';
+      case 'tidak aktif':
+      case 'non-aktif':
+        return '#f39c12';
+      case 'ditolak':
+        return '#e74c3c';
+      case 'ditangguhkan':
+        return '#7f8c8d';
+      default:
+        return '#7f8c8d';
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'aktif':
+        return 'Aktif';
+      case 'tidak aktif':
+      case 'non-aktif':
+        return 'Tidak Aktif';
+      case 'ditolak':
+        return 'Ditolak';
+      case 'ditangguhkan':
+        return 'Ditangguhkan';
+      default:
+        return status || 'Tidak Diketahui';
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -306,14 +409,9 @@ const KeluargaDetailScreen = ({ route, navigation }) => {
           </View>
         </CardSection>
         
-        {/* Anggota Keluarga */}
+        {/* Anggota Keluarga - simplified without nesting FlatList */}
         <CardSection title="Anggota Keluarga" titleColor="#2E86DE">
-          <AnggotaKeluargaList 
-            anakList={anak} 
-            onPressAnak={handleViewAnak} 
-            onAddAnak={handleAddAnak}
-            emptyText="Belum ada data anak dalam keluarga ini"
-          />
+          {renderAnakList()}
         </CardSection>
       </ScrollView>
     </SafeAreaView>
@@ -327,6 +425,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
+    paddingBottom: 30,
   },
   centerContainer: {
     flex: 1,
@@ -433,6 +532,89 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  // Anak list styles
+  emptyContainer: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  addButton: {
+    backgroundColor: '#2E86DE',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  anakItem: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 12,
+    marginVertical: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  anakInfo: {
+    flex: 1,
+  },
+  anakName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 2,
+  },
+  anakNickname: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    marginBottom: 4,
+  },
+  anakDetail: {
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 4,
+  },
+  statusContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 5,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  addMoreButton: {
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#2E86DE',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 15,
+  },
+  addMoreButtonText: {
+    color: '#2E86DE',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });
 
