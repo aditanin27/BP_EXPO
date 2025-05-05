@@ -49,8 +49,8 @@ import TambahAnakKelompokScreen from '../screens/kelompok/TambahAnakKelompokScre
 //Keluarga Screen
 import KeluargaListScreen from '../screens/keluarga/KeluargaListScreen';
 import KeluargaDetailScreen from '../screens/keluarga/KeluargaDetailScreen';
-//import TambahKeluargaScreen from '../screens/keluarga/formKeluarga/TambahKeluargaScreen';
 import KeluargaFormSelectionScreen from '../screens/keluarga/KeluargaFormSelectionScreen';
+import TambahKeluargaScreen from '../screens/keluarga/formKeluarga/TambahKeluargaScreen';
 import PengajuanAnakScreen from '../screens/keluarga/PengajuanAnakScreen';
 import PengajuanAnakFormScreen from '../screens/keluarga/PengajuanAnakFormScreen';
 
@@ -347,7 +347,7 @@ const AppNavigator = () => {
     }}
   />
   {/* Rute-rute Keluarga */}
-<Stack.Screen 
+  <Stack.Screen 
   name="KeluargaList" 
   component={KeluargaListScreen}
   options={{
@@ -357,6 +357,41 @@ const AppNavigator = () => {
 <Stack.Screen 
   name="KeluargaDetail" 
   component={KeluargaDetailScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="KeluargaFormSelection" 
+  component={KeluargaFormSelectionScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="TambahKeluarga" 
+  component={TambahKeluargaScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="EditKeluarga" 
+  component={TambahKeluargaScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="PengajuanAnak" 
+  component={PengajuanAnakScreen}
+  options={{
+    animation: 'slide_from_right',
+  }}
+/>
+<Stack.Screen 
+  name="PengajuanAnakForm" 
+  component={PengajuanAnakFormScreen}
   options={{
     animation: 'slide_from_right',
   }}
