@@ -150,7 +150,7 @@ const TambahKeluargaScreen = ({ navigation }) => {
     
     // Remove data based on user choices
     if (formData.keluarga.bank_choice === 'no') {
-      keluargaData.id_bank = null;
+      delete keluargaData.id_bank;
       keluargaData.no_rek = null;
       keluargaData.an_rek = null;
     }

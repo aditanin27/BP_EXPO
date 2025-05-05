@@ -357,6 +357,9 @@ const keluargaSlice = createSlice({
       
       if (keluargaData) {
         // Initialize keluarga data
+        console.log('Initializing form with data:', keluargaData);
+    
+        // Initialize keluarga data
         state.formData.keluarga = {
           no_kk: keluargaData.keluarga?.no_kk || '',
           kepala_keluarga: keluargaData.keluarga?.kepala_keluarga || '',
