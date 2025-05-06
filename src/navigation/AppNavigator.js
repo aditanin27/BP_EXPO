@@ -1,61 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
-import { getToken } from '../utils/storage';
-import { setCredentials } from '../redux/slices/authSlice';
+import React, { useEffect, useState } from 'react';
 import LoadingOverlay from '../components/LoadingOverlay';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { setCredentials } from '../redux/slices/authSlice';
+import { getToken } from '../utils/storage';
 
 // Screens
 import LoginScreen from '../screens/auth/LoginScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 // Anak screens
-import ListAnakScreen from '../screens/anak/ListAnakScreen';
 import DetailAnakScreen from '../screens/anak/DetailAnakScreen';
+import ListAnakScreen from '../screens/anak/ListAnakScreen';
 
 
 // New Anak Detail Menu Screens
-import InformasiAnakScreen from '../screens/anak/menuAnakScreens/InformasiAnakScreen';
-import RaportScreen from '../screens/anak/menuAnakScreens/RaportScreen';
-import RaportDetailScreen from '../screens/anak/menuAnakScreens/RaportDetailScreen';
-import RaportFormScreen from '../screens/anak/RaportFormScreen'
-import RiwayatScreen from '../screens/anak/menuAnakScreens/RiwayatScreen';
-import CeritaScreen from '../screens/anak/menuAnakScreens/CeritaScreen';
-import NilaiAnakScreen from '../screens/anak/menuAnakScreens/NilaiAnakScreen';
-import RaporShelterScreen from '../screens/anak/menuAnakScreens/RaporShelterScreen';
-import PrestasiScreen from '../screens/anak/menuAnakScreens/PrestasiScreen';
-import PrestasiDetailScreen from '../screens/anak/PrestasiDetailScreen';
-import PrestasiFormScreen from '../screens/anak/PrestasiFormScreen';
-import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
-import SuratDetailScreen from '../screens/anak/SuratDetailScreen';
-import SuratAbFormScreen from '../screens/anak/SuratAbFormScreen';
 import HistoriDetailScreen from '../screens/anak/HistoriDetailScreen';
 import HistoriFormScreen from '../screens/anak/HistoriFormScreen';
+import CeritaScreen from '../screens/anak/menuAnakScreens/CeritaScreen';
+import InformasiAnakScreen from '../screens/anak/menuAnakScreens/InformasiAnakScreen';
+import NilaiAnakScreen from '../screens/anak/menuAnakScreens/NilaiAnakScreen';
+import PrestasiScreen from '../screens/anak/menuAnakScreens/PrestasiScreen';
+import RaporShelterScreen from '../screens/anak/menuAnakScreens/RaporShelterScreen';
+import RaportDetailScreen from '../screens/anak/menuAnakScreens/RaportDetailScreen';
+import RaportScreen from '../screens/anak/menuAnakScreens/RaportScreen';
+import RiwayatScreen from '../screens/anak/menuAnakScreens/RiwayatScreen';
+import SuratScreen from '../screens/anak/menuAnakScreens/SuratScreen';
+import PrestasiDetailScreen from '../screens/anak/PrestasiDetailScreen';
+import PrestasiFormScreen from '../screens/anak/PrestasiFormScreen';
+import RaportFormScreen from '../screens/anak/RaportFormScreen';
+import SuratAbFormScreen from '../screens/anak/SuratAbFormScreen';
+import SuratDetailScreen from '../screens/anak/SuratDetailScreen';
 
 // Tutor screens
-import TutorListScreen from '../screens/tutor/TutorListScreen';
-import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
 import FormTutorScreen from '../screens/tutor/FormTutorScreen';
+import TutorDetailScreen from '../screens/tutor/TutorDetailScreen';
+import TutorListScreen from '../screens/tutor/TutorListScreen';
 
 //Kelompok screen
-import KelompokListScreen from '../screens/kelompok/KelompokListScreen';
+import AnakKelompokScreen from '../screens/kelompok/AnakKelompokScreen';
 import DetailKelompokScreen from '../screens/kelompok/DetailKelompokScreen';
 import FormKelompokScreen from '../screens/kelompok/FormKelompokScreen';
-import AnakKelompokScreen from '../screens/kelompok/AnakKelompokScreen';
+import KelompokListScreen from '../screens/kelompok/KelompokListScreen';
 import TambahAnakKelompokScreen from '../screens/kelompok/TambahAnakKelompokScreen';
 
 //Keluarga Screen
-import KeluargaListScreen from '../screens/keluarga/KeluargaListScreen';
+import TambahKeluargaScreen from '../screens/keluarga/formKeluarga/TambahKeluargaScreen';
 import KeluargaDetailScreen from '../screens/keluarga/KeluargaDetailScreen';
 import KeluargaFormSelectionScreen from '../screens/keluarga/KeluargaFormSelectionScreen';
-import TambahKeluargaScreen from '../screens/keluarga/formKeluarga/TambahKeluargaScreen';
-import PengajuanAnakScreen from '../screens/keluarga/PengajuanAnakScreen';
+import KeluargaListScreen from '../screens/keluarga/KeluargaListScreen';
 import PengajuanAnakFormScreen from '../screens/keluarga/PengajuanAnakFormScreen';
+import PengajuanAnakScreen from '../screens/keluarga/PengajuanAnakScreen';
 
-import { STORAGE_TOKEN_KEY } from '../utils/constants';
+//Aktvitas Screen
+import AktivitasListScreen from '../screens/aktivitas/AktivitasListScreen';
+
 import { authApi } from '../api';
+import { STORAGE_TOKEN_KEY } from '../utils/constants';
+import AktivitasFormScreen from '../screens/aktivitas/AktivitasFormScreen';
+import AktivitasDetailScreen from '../screens/aktivitas/AktivitasDetailScreen';
+import FotoAktivitasScreen from '../screens/aktivitas/FotoAktifitasScreen';
+import AbsenScreen from '../screens/aktivitas/AbsenScreen';
 
 
 
@@ -396,7 +403,46 @@ const AppNavigator = () => {
     animation: 'slide_from_right',
   }}
 />
-
+<Stack.Screen 
+  name="AktivitasList" 
+  component={AktivitasListScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="AktivitasForm" 
+  component={AktivitasFormScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="AktivitasDetail" 
+  component={AktivitasDetailScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="FotoAktivitas" 
+  component={FotoAktivitasScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="Absen" 
+  component={AbsenScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
 
           </>
         )}
