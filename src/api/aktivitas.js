@@ -169,11 +169,5 @@ export const aktivitasApi = {
     });
   },
   
-  /**
-   * Get list of kelompok for the current shelter
-   * @returns {Promise} - API response with kelompok options
-   */
-  getKelompokList: async () => {
-    return fetchWithAuth('/aktivitas/kelompok-list');
-  }
+  
 };
