@@ -61,7 +61,7 @@ import { authApi } from '../api';
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
 import AktivitasFormScreen from '../screens/aktivitas/AktivitasFormScreen';
 import AktivitasDetailScreen from '../screens/aktivitas/AktivitasDetailScreen';
-import FotoAktivitasScreen from '../screens/aktivitas/FotoAktivitasScreen';
+
 
 // import AbsenScreen from '../screens/aktivitas/AbsenScreen';
 
@@ -412,14 +412,7 @@ const AppNavigator = () => {
     headerShown: false
   }}
 />
-{/* <Stack.Screen 
-  name="AktivitasForm" 
-  component={AktivitasFormScreen}
-  options={{
-    animation: 'slide_from_right',
-    headerShown: false
-  }}
-/>
+
 <Stack.Screen 
   name="AktivitasDetail" 
   component={AktivitasDetailScreen}
@@ -428,14 +421,17 @@ const AppNavigator = () => {
     headerShown: false
   }}
 />
-<Stack.Screen 
-  name="FotoAktivitas" 
-  component={FotoAktivitasScreen}
+
+{/* <Stack.Screen 
+  name="AktivitasForm" 
+  component={AktivitasFormScreen}
   options={{
     animation: 'slide_from_right',
     headerShown: false
   }}
-/> */}
+/>
+
+
 {/* <Stack.Screen 
   name="Absen" 
   component={AbsenScreen}
