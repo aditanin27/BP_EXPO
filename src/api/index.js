@@ -8,4 +8,6 @@ export { prestasiApi } from './prestasi';
 export { suratAbApi } from './suratAb';  // Add this line
 export { historiApi } from './histori';
 export { keluargaApi } from './keluarga'; // Add keluarga API export
+export { aktivitasApi } from './aktivitas';
+export { absenApi } from './absen';
 export { fetchWithAuth, handleResponse, createFormData } from './utils';
