@@ -73,10 +73,6 @@ const AktivitasDetailScreen = () => {
     );
   };
   
-  const handleViewPhotos = () => {
-    navigation.navigate('FotoAktivitas', { id });
-  };
-  
   const handleManageAbsensi = () => {
     navigation.navigate('Absen', { id });
   };
