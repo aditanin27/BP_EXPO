@@ -53,17 +53,10 @@ import KeluargaFormSelectionScreen from '../screens/keluarga/KeluargaFormSelecti
 import KeluargaListScreen from '../screens/keluarga/KeluargaListScreen';
 import PengajuanAnakFormScreen from '../screens/keluarga/PengajuanAnakFormScreen';
 import PengajuanAnakScreen from '../screens/keluarga/PengajuanAnakScreen';
-
 //Aktvitas Screen
-import AktivitasListScreen from '../screens/aktivitas/AktivitasListScreen';
 
 import { authApi } from '../api';
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
-import AktivitasFormScreen from '../screens/aktivitas/AktivitasFormScreen';
-import AktivitasDetailScreen from '../screens/aktivitas/AktivitasDetailScreen';
-
-
-// import AbsenScreen from '../screens/aktivitas/AbsenScreen';
 
 
 
@@ -404,42 +397,7 @@ const AppNavigator = () => {
     animation: 'slide_from_right',
   }}
 />
-<Stack.Screen 
-  name="AktivitasList" 
-  component={AktivitasListScreen}
-  options={{
-    animation: 'slide_from_right',
-    headerShown: false
-  }}
-/>
 
-<Stack.Screen 
-  name="AktivitasDetail" 
-  component={AktivitasDetailScreen}
-  options={{
-    animation: 'slide_from_right',
-    headerShown: false
-  }}
-/>
-
-{/* <Stack.Screen 
-  name="AktivitasForm" 
-  component={AktivitasFormScreen}
-  options={{
-    animation: 'slide_from_right',
-    headerShown: false
-  }}
-/>
-
-
-{/* <Stack.Screen 
-  name="Absen" 
-  component={AbsenScreen}
-  options={{
-    animation: 'slide_from_right',
-    headerShown: false
-  }}
-/> */}
 
           </>
         )}
