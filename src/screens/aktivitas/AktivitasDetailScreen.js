@@ -1,5 +1,5 @@
 // src/screens/aktivitas/AktivitasDetailScreen.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -8,18 +8,24 @@ import {
   TouchableOpacity, 
   Image,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions,
+  Modal,
+  FlatList
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { 
   fetchAktivitasDetail, 
   clearAktivitasDetail, 
-  deleteAktivitas 
+  deleteAktivitas, 
+  resetAktivitasState
 } from '../../redux/slices/aktivitasSlice';
 import LoadingOverlay from '../../components/LoadingOverlay';
 import CardSection from '../../components/CardSection';
 import Button from '../../components/Button';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 const AktivitasDetailScreen = () => {
   const navigation = useNavigation();
@@ -30,6 +36,9 @@ const AktivitasDetailScreen = () => {
   const { detail, isLoadingDetail, deleteSuccess, error } = useAppSelector(state => state.aktivitas);
   
   const [isDeleting, setIsDeleting] = useState(false);
+  const [photoGalleryVisible, setPhotoGalleryVisible] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const flatListRef = useRef(null);
   
   // Fetch aktivitas detail when screen loads
   useEffect(() => {
@@ -50,6 +59,15 @@ const AktivitasDetailScreen = () => {
       navigation.goBack();
     }
   }, [deleteSuccess, navigation]);
+  
+  // Handle error
+  useEffect(() => {
+    if (error) {
+      setIsDeleting(false);
+      Alert.alert('Error', error);
+      dispatch(resetAktivitasState());
+    }
+  }, [error]);
   
   const handleEdit = () => {
     navigation.navigate('AktivitasForm', { id });
@@ -73,7 +91,9 @@ const AktivitasDetailScreen = () => {
     );
   };
   
- 
+  const handleManagePhotos = () => {
+    navigation.navigate('FotoAktivitas', { id });
+  };
   
   const handleManageAbsensi = () => {
     navigation.navigate('Absen', { id });
@@ -88,6 +108,11 @@ const AktivitasDetailScreen = () => {
       month: 'long',
       year: 'numeric'
     });
+  };
+  
+  const openPhotoGallery = (index) => {
+    setSelectedPhotoIndex(index);
+    setPhotoGalleryVisible(true);
   };
   
   // Show loading indicator when fetching detail
@@ -128,7 +153,7 @@ const AktivitasDetailScreen = () => {
     detail.foto_1_url,
     detail.foto_2_url,
     detail.foto_3_url
-  ].filter(url => url);
+  ].filter(url => url && url !== 'https://berbagipendidikan.org/images/default.png');
   
   const hasPhotos = photos.length > 0;
   
@@ -140,12 +165,17 @@ const AktivitasDetailScreen = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.backButtonText}>← Kembali</Text>
+          <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Detail Aktivitas</Text>
+        <View style={{ width: 40 }} />
       </View>
       
-      <ScrollView style={styles.scrollView}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}
+        showsVerticalScrollIndicator={true}
+      >
         {/* Main content */}
         <View style={styles.content}>
           {/* Activity type badge */}
@@ -161,27 +191,27 @@ const AktivitasDetailScreen = () => {
             {formatDate(detail.tanggal)}
           </Text>
           
-          {/* Photo preview */}
+          {/* Photos Grid */}
           {hasPhotos ? (
-            <TouchableOpacity 
-              style={styles.photoPreview}
-              
-            >
-              <Image
-                source={{ uri: photos[0] }}
-                style={styles.photoImage}
-                resizeMode="cover"
-              />
-              {photos.length > 1 && (
-                <View style={styles.morePhotosIndicator}>
-                  <Text style={styles.morePhotosText}>+{photos.length - 1}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+            <View style={styles.photosGrid}>
+              {photos.map((photo, index) => (
+                <TouchableOpacity 
+                  key={`photo-${index}`}
+                  style={styles.photoThumbnail}
+                  onPress={() => openPhotoGallery(index)}
+                >
+                  <Image
+                    source={{ uri: photo }}
+                    style={styles.thumbnailImage}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
           ) : (
             <TouchableOpacity 
               style={styles.noPhotoContainer}
-              
+              onPress={handleManagePhotos}
             >
               <Text style={styles.noPhotoText}>
                 Tidak ada foto. Tap untuk menambahkan foto.
@@ -224,13 +254,16 @@ const AktivitasDetailScreen = () => {
               <Text style={styles.detailValue}>{detail.shelter?.alamat || '-'}</Text>
             </View>
           </CardSection>
+          
+          {/* Spacer to ensure content is visible above the action buttons */}
+          <View style={styles.bottomSpacer} />
         </View>
       </ScrollView>
       
       {/* Action buttons */}
       <View style={styles.actionButtonsContainer}>
         <Button
-          title="Absensi"
+          title="Kelola Absensi"
           onPress={handleManageAbsensi}
           style={styles.absensiButton}
         />
@@ -241,6 +274,13 @@ const AktivitasDetailScreen = () => {
             onPress={handleEdit}
           >
             <Text style={styles.editButtonText}>Edit</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.photoButton}
+            onPress={handleManagePhotos}
+          >
+            <Text style={styles.photoButtonText}>Foto</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
@@ -256,6 +296,69 @@ const AktivitasDetailScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
+      
+      {/* Photo Gallery Modal */}
+      <Modal
+        visible={photoGalleryVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setPhotoGalleryVisible(false)}
+      >
+        <View style={styles.galleryContainer}>
+          <TouchableOpacity 
+            style={styles.galleryCloseButton}
+            onPress={() => setPhotoGalleryVisible(false)}
+          >
+            <Text style={styles.galleryCloseText}>×</Text>
+          </TouchableOpacity>
+          
+          <FlatList
+            ref={flatListRef}
+            data={photos}
+            keyExtractor={(item, index) => `gallery-photo-${index}`}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            initialScrollIndex={selectedPhotoIndex}
+            getItemLayout={(data, index) => ({
+              length: screenWidth,
+              offset: screenWidth * index,
+              index,
+            })}
+            onScrollToIndexFailed={() => {
+              // Handle scroll failure if needed
+            }}
+            renderItem={({ item }) => (
+              <View style={styles.gallerySlide}>
+                <Image
+                  source={{ uri: item }}
+                  style={styles.galleryImage}
+                  resizeMode="contain"
+                />
+              </View>
+            )}
+            onMomentumScrollEnd={(event) => {
+              const newIndex = Math.round(
+                event.nativeEvent.contentOffset.x / screenWidth
+              );
+              setSelectedPhotoIndex(newIndex);
+            }}
+          />
+          
+          {/* Pagination indicator */}
+          <View style={styles.paginationContainer}>
+            {photos.map((_, index) => (
+              <View
+                key={`dot-${index}`}
+                style={[
+                  styles.paginationDot,
+                  selectedPhotoIndex === index && styles.paginationDotActive
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -268,29 +371,39 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     padding: 16,
     backgroundColor: 'white',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+    elevation: 2,
   },
   backButton: {
-    marginRight: 16,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   backButtonText: {
-    fontSize: 16,
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#2E86DE',
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+    flex: 1,
+    textAlign: 'center',
   },
   scrollView: {
     flex: 1,
   },
+  scrollViewContent: {
+    paddingBottom: 100, // Ensure there's room for the action buttons
+  },
   content: {
     padding: 16,
-    paddingBottom: 100, // Add extra padding for bottom buttons
   },
   badgeContainer: {
     alignSelf: 'flex-start',
@@ -316,33 +429,26 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 16,
   },
-  photoPreview: {
-    height: 200,
+  // New photo grid styles
+  photosGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  photoThumbnail: {
+    width: '32%',
+    height: 100,
     borderRadius: 8,
     overflow: 'hidden',
-    marginBottom: 20,
-    position: 'relative',
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
-  photoImage: {
+  thumbnailImage: {
     width: '100%',
     height: '100%',
   },
-  morePhotosIndicator: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-  },
-  morePhotosText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
   noPhotoContainer: {
-    height: 120,
+    height: 100,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
@@ -372,6 +478,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
+  bottomSpacer: {
+    height: 80, // Extra space at the bottom to ensure content is not hidden by action buttons
+  },
   actionButtonsContainer: {
     position: 'absolute',
     bottom: 0,
@@ -381,6 +490,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#eee',
     padding: 16,
+    elevation: 5,
   },
   absensiButton: {
     backgroundColor: '#27ae60',
@@ -398,6 +508,19 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   editButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  photoButton: {
+    flex: 1,
+    backgroundColor: '#f39c12',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  photoButtonText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
@@ -427,6 +550,57 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     margin: 20,
+  },
+  galleryContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  galleryCloseButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    zIndex: 10,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  galleryCloseText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  gallerySlide: {
+    width: screenWidth,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  galleryImage: {
+    width: screenWidth,
+    height: '80%',
+  },
+  paginationContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 40,
+    justifyContent: 'center',
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    margin: 5,
+  },
+  paginationDotActive: {
+    backgroundColor: 'white',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
 });
 

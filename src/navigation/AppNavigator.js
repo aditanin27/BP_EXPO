@@ -57,6 +57,8 @@ import PengajuanAnakScreen from '../screens/keluarga/PengajuanAnakScreen';
 
 import { authApi } from '../api';
 import { STORAGE_TOKEN_KEY } from '../utils/constants';
+import AktivitasListScreen from '../screens/aktivitas/AktivitasListScreen';
+import AktivitasDetailScreen from '../screens/aktivitas/AktivitasDetailScreen';
 
 
 
@@ -397,7 +399,47 @@ const AppNavigator = () => {
     animation: 'slide_from_right',
   }}
 />
-
+{/* Rute-rute Aktivitas */}
+<Stack.Screen 
+  name="AktivitasList" 
+  component={AktivitasListScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="AktivitasDetail" 
+  component={AktivitasDetailScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+{/* <Stack.Screen 
+  name="AktivitasForm" 
+  component={AktivitasFormScreen}
+  options={{
+    animation: 'slide_from_bottom',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="FotoAktivitas" 
+  component={FotoAktivitasScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="Absen" 
+  component={AbsenScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/> */}
 
           </>
         )}
