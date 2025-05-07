@@ -61,6 +61,7 @@ import AktivitasListScreen from '../screens/aktivitas/AktivitasListScreen';
 import AktivitasDetailScreen from '../screens/aktivitas/AktivitasDetailScreen';
 import AktivitasFormScreen from '../screens/aktivitas/AktivitasFormScreen';
 import FotoAktivitasScreen from '../screens/aktivitas/FotoAktivitasScreen';
+import AbsenScreen from '../screens/aktivitas/AbsenScreen';
 
 
 
@@ -434,8 +435,6 @@ const AppNavigator = () => {
     headerShown: false
   }}
 />
-{/*
-
 <Stack.Screen 
   name="Absen" 
   component={AbsenScreen}
@@ -443,7 +442,7 @@ const AppNavigator = () => {
     animation: 'slide_from_right',
     headerShown: false
   }}
-/> */}
+/> 
 
           </>
         )}
