@@ -60,6 +60,7 @@ import { STORAGE_TOKEN_KEY } from '../utils/constants';
 import AktivitasListScreen from '../screens/aktivitas/AktivitasListScreen';
 import AktivitasDetailScreen from '../screens/aktivitas/AktivitasDetailScreen';
 import AktivitasFormScreen from '../screens/aktivitas/AktivitasFormScreen';
+import FotoAktivitasScreen from '../screens/aktivitas/FotoAktivitasScreen';
 
 
 
@@ -425,7 +426,6 @@ const AppNavigator = () => {
     headerShown: false
   }}
 />
-{/* 
 <Stack.Screen 
   name="FotoAktivitas" 
   component={FotoAktivitasScreen}
@@ -434,6 +434,8 @@ const AppNavigator = () => {
     headerShown: false
   }}
 />
+{/*
+
 <Stack.Screen 
   name="Absen" 
   component={AbsenScreen}

@@ -10,7 +10,8 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  Image
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
@@ -22,9 +23,9 @@ import {
 } from '../../redux/slices/aktivitasSlice';
 import DropdownSelect from '../../components/DropdownSelect';
 import DatePicker from '../../components/DatePicker';
-import FotoUploader from '../../components/FotoUploader';
 import Button from '../../components/Button';
 import LoadingOverlay from '../../components/LoadingOverlay';
+import * as ImagePicker from 'expo-image-picker';
 
 const AktivitasFormScreen = () => {
   const navigation = useNavigation();
@@ -47,10 +48,7 @@ const AktivitasFormScreen = () => {
     nama_kelompok: '',
     foto_1: null,
     foto_2: null,
-    foto_3: null,
-    hapus_foto_1: false,
-    hapus_foto_2: false,
-    hapus_foto_3: false,
+    foto_3: null
   });
   
   const [errors, setErrors] = useState({});
@@ -89,10 +87,10 @@ const AktivitasFormScreen = () => {
         materi: detail.materi || '',
         level: detail.level || '',
         nama_kelompok: detail.nama_kelompok || '',
-        // Don't set foto fields here, they will be displayed separately
-        hapus_foto_1: false,
-        hapus_foto_2: false,
-        hapus_foto_3: false,
+        // We don't set foto fields here since they will be handled separately
+        foto_1: null,
+        foto_2: null,
+        foto_3: null
       });
     }
   }, [isEditMode, detail]);
@@ -148,27 +146,85 @@ const AktivitasFormScreen = () => {
     setShowDatePicker(false);
   };
   
-  // Handle photo selection
-  const handleSelectPhoto = (field, photo) => {
-    handleChange(field, photo);
-    
-    // If user selects a new photo, don't delete it
-    if (field === 'foto_1') handleChange('hapus_foto_1', false);
-    if (field === 'foto_2') handleChange('hapus_foto_2', false);
-    if (field === 'foto_3') handleChange('hapus_foto_3', false);
+  // Request camera/gallery permissions
+  const requestMediaPermissions = async () => {
+    if (Platform.OS !== 'web') {
+      const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+      const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (cameraStatus.status !== 'granted' || galleryStatus.status !== 'granted') {
+        Alert.alert(
+          'Izin Diperlukan',
+          'Aplikasi memerlukan izin untuk mengakses kamera dan galeri',
+          [{ text: 'OK' }]
+        );
+        return false;
+      }
+    }
+    return true;
   };
   
-  // Handle photo removal
-  const handleRemovePhoto = (field) => {
-    // For edit mode, mark for deletion on the server
-    if (isEditMode) {
-      if (field === 'foto_1') handleChange('hapus_foto_1', true);
-      if (field === 'foto_2') handleChange('hapus_foto_2', true);
-      if (field === 'foto_3') handleChange('hapus_foto_3', true);
-    }
+  // Pick image from gallery
+  const pickImage = async (field) => {
+    const hasPermission = await requestMediaPermissions();
+    if (!hasPermission) return;
     
-    // Always clear the local state
-    handleChange(field, null);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+      
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        handleChange(field, result.assets[0]);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Gagal memilih gambar dari galeri');
+    }
+  };
+  
+  // Take a photo with camera
+  const takePhoto = async (field) => {
+    const hasPermission = await requestMediaPermissions();
+    if (!hasPermission) return;
+    
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+      
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        handleChange(field, result.assets[0]);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Gagal mengambil foto dengan kamera');
+    }
+  };
+  
+  // Show photo options (camera/gallery)
+  const showPhotoOptions = (field) => {
+    Alert.alert(
+      'Pilih Foto',
+      'Pilih sumber foto',
+      [
+        {
+          text: 'Kamera',
+          onPress: () => takePhoto(field),
+        },
+        {
+          text: 'Galeri',
+          onPress: () => pickImage(field),
+        },
+        {
+          text: 'Batal',
+          style: 'cancel',
+        },
+      ]
+    );
   };
   
   // Form validation
@@ -221,6 +277,19 @@ const AktivitasFormScreen = () => {
       dispatch(updateAktivitas({ id, aktivitasData }));
     } else {
       dispatch(createAktivitas(aktivitasData));
+    }
+  };
+  
+// Handle navigation to photo management screen
+const handleManagePhotos = () => {
+    if (isEditMode) {
+      navigation.navigate('FotoAktivitas', { id });
+    } else {
+      Alert.alert(
+        'Info',
+        'Anda perlu menyimpan aktivitas terlebih dahulu sebelum mengelola foto',
+        [{ text: 'OK' }]
+      );
     }
   };
   
@@ -335,33 +404,136 @@ const AktivitasFormScreen = () => {
             </>
           )}
           
-          {/* Photos */}
-          <View style={styles.photoSection}>
-            <Text style={styles.sectionTitle}>Foto Aktivitas</Text>
-            
-            <FotoUploader
-              title="Foto 1"
-              imageUri={isEditMode && detail ? detail.foto_1_url : formData.foto_1?.uri}
-              onSelectImage={(photo) => handleSelectPhoto('foto_1', photo)}
-              onRemoveImage={() => handleRemovePhoto('foto_1')}
-              isUploading={isLoading}
-            />
-            
-            <FotoUploader
-              title="Foto 2"
-              imageUri={isEditMode && detail ? detail.foto_2_url : formData.foto_2?.uri}
-              onSelectImage={(photo) => handleSelectPhoto('foto_2', photo)}
-              onRemoveImage={() => handleRemovePhoto('foto_2')}
-              isUploading={isLoading}
-            />
-            
-            <FotoUploader
-              title="Foto 3"
-              imageUri={isEditMode && detail ? detail.foto_3_url : formData.foto_3?.uri}
-              onSelectImage={(photo) => handleSelectPhoto('foto_3', photo)}
-              onRemoveImage={() => handleRemovePhoto('foto_3')}
-              isUploading={isLoading}
-            />
+          {/* Photos Section */}
+<View style={styles.photoSection}>
+  <View style={styles.sectionHeader}>
+    <Text style={styles.sectionTitle}>Foto Aktivitas</Text>
+    
+    {isEditMode && (
+      <TouchableOpacity 
+        style={styles.managePhotosButton}
+        onPress={handleManagePhotos}
+      >
+        <Text style={styles.managePhotosText}>Kelola Foto</Text>
+      </TouchableOpacity>
+    )}
+  </View>
+  
+  {isEditMode ? (
+    /* For edit mode, show existing photos with option to manage */
+    <View style={styles.existingPhotos}>
+      {detail && (
+        <View style={styles.photosGrid}>
+          {[detail.foto_1_url, detail.foto_2_url, detail.foto_3_url]
+            .filter(url => url && url !== 'https://berbagipendidikan.org/images/default.png')
+            .map((url, index) => (
+              <Image 
+                key={`photo-${index}`}
+                source={{ uri: url }}
+                style={styles.photoThumbnail}
+              />
+            ))}
+          
+          {([detail.foto_1_url, detail.foto_2_url, detail.foto_3_url]
+            .filter(url => url && url !== 'https://berbagipendidikan.org/images/default.png').length === 0) && (
+            <Text style={styles.noPhotosText}>
+              Belum ada foto untuk aktivitas ini. Klik "Kelola Foto" untuk menambahkan.
+            </Text>
+          )}
+        </View>
+      )}
+    </View>
+  ) : (
+              /* For create mode, show options to add initial photos */
+              <View style={styles.newPhotos}>
+                <Text style={styles.photoHelpText}>
+                  Tambahkan foto untuk aktivitas ini (opsional). Anda juga dapat menambahkannya nanti.
+                </Text>
+                
+                <View style={styles.photoButtonsContainer}>
+                  {/* Foto 1 */}
+                  <View style={styles.photoItem}>
+                    <Text style={styles.photoLabel}>Foto 1</Text>
+                    
+                    {formData.foto_1 ? (
+                      <View style={styles.selectedPhotoContainer}>
+                        <Image 
+                          source={{ uri: formData.foto_1.uri }}
+                          style={styles.selectedPhoto}
+                        />
+                        <TouchableOpacity 
+                          style={styles.removePhotoButton}
+                          onPress={() => handleChange('foto_1', null)}
+                        >
+                          <Text style={styles.removePhotoText}>×</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity 
+                        style={styles.addPhotoButton}
+                        onPress={() => showPhotoOptions('foto_1')}
+                      >
+                        <Text style={styles.addPhotoText}>+ Tambah</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                  
+                  {/* Foto 2 */}
+                  <View style={styles.photoItem}>
+                    <Text style={styles.photoLabel}>Foto 2</Text>
+                    
+                    {formData.foto_2 ? (
+                      <View style={styles.selectedPhotoContainer}>
+                        <Image 
+                          source={{ uri: formData.foto_2.uri }}
+                          style={styles.selectedPhoto}
+                        />
+                        <TouchableOpacity 
+                          style={styles.removePhotoButton}
+                          onPress={() => handleChange('foto_2', null)}
+                        >
+                          <Text style={styles.removePhotoText}>×</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity 
+                        style={styles.addPhotoButton}
+                        onPress={() => showPhotoOptions('foto_2')}
+                      >
+                        <Text style={styles.addPhotoText}>+ Tambah</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                  
+                  {/* Foto 3 */}
+                  <View style={styles.photoItem}>
+                    <Text style={styles.photoLabel}>Foto 3</Text>
+                    
+                    {formData.foto_3 ? (
+                      <View style={styles.selectedPhotoContainer}>
+                        <Image 
+                          source={{ uri: formData.foto_3.uri }}
+                          style={styles.selectedPhoto}
+                        />
+                        <TouchableOpacity 
+                          style={styles.removePhotoButton}
+                          onPress={() => handleChange('foto_3', null)}
+                        >
+                          <Text style={styles.removePhotoText}>×</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity 
+                        style={styles.addPhotoButton}
+                        onPress={() => showPhotoOptions('foto_3')}
+                      >
+                        <Text style={styles.addPhotoText}>+ Tambah</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                </View>
+              </View>
+            )}
           </View>
           
           <View style={styles.submitButtonContainer}>
@@ -423,6 +595,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     padding: 16,
+    paddingBottom: 30,
   },
   formContainer: {
     backgroundColor: 'white',
@@ -475,17 +648,118 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   photoSection: {
-    marginTop: 16,
+    marginTop: 24,
+    marginBottom: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+  },
+  managePhotosButton: {
+    backgroundColor: '#2E86DE',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  managePhotosText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  existingPhotos: {
     marginBottom: 16,
   },
+  photosGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+  },
+  photoThumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 6,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  noPhotosText: {
+    color: '#666',
+    fontSize: 14,
+    fontStyle: 'italic',
+  },
+  newPhotos: {
+    marginBottom: 16,
+  },
+  photoHelpText: {
+    color: '#666',
+    fontSize: 14,
+    marginBottom: 12,
+  },
+  photoButtonsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  photoItem: {
+    width: '31%',
+    marginBottom: 16,
+  },
+  photoLabel: {
+    fontSize: 14,
+    color: '#555',
+    marginBottom: 6,
+  },
+  addPhotoButton: {
+    backgroundColor: '#f0f0f0',
+    height: 80,
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderStyle: 'dashed',
+  },
+  addPhotoText: {
+    color: '#2E86DE',
+    fontWeight: '500',
+  },
+  selectedPhotoContainer: {
+    position: 'relative',
+    height: 80,
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  selectedPhoto: {
+    width: '100%',
+    height: '100%',
+  },
+  removePhotoButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removePhotoText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   submitButtonContainer: {
-    marginTop: 16,
+    marginTop: 24,
   },
   submitButton: {
     marginBottom: 12,
