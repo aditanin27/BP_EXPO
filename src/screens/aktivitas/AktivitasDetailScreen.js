@@ -73,6 +73,8 @@ const AktivitasDetailScreen = () => {
     );
   };
   
+ 
+  
   const handleManageAbsensi = () => {
     navigation.navigate('Absen', { id });
   };
@@ -163,7 +165,7 @@ const AktivitasDetailScreen = () => {
           {hasPhotos ? (
             <TouchableOpacity 
               style={styles.photoPreview}
-              onPress={handleViewPhotos}
+              
             >
               <Image
                 source={{ uri: photos[0] }}
@@ -179,7 +181,7 @@ const AktivitasDetailScreen = () => {
           ) : (
             <TouchableOpacity 
               style={styles.noPhotoContainer}
-              onPress={handleViewPhotos}
+              
             >
               <Text style={styles.noPhotoText}>
                 Tidak ada foto. Tap untuk menambahkan foto.
