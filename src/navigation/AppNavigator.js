@@ -67,6 +67,9 @@ import AbsenScreen from '../screens/aktivitas/AbsenScreen';
 import SurveyListScreen from '../screens/survey/SurveyListScreen';
 import SurveyFormScreen from '../screens/survey/SurveyFormScreen';
 import SurveyDetailScreen from '../screens/survey/SurveyDetailScreen';
+import SurveyValidasiListScreen from '../screens/survey/SurveyValidasiListScreen';
+import SurveyValidasiFormScreen from '../screens/survey/SurveyValidasiFormScreen';
+import SurveyValidasiSummaryScreen from '../screens/survey/SurveyValidasiSummaryScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -466,6 +469,31 @@ const AppNavigator = () => {
 <Stack.Screen 
   name="SurveyDetail" 
   component={SurveyDetailScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+
+<Stack.Screen 
+  name="SurveyValidasiSummary" 
+  component={SurveyValidasiSummaryScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="SurveyValidasiList" 
+  component={SurveyValidasiListScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="SurveyValidasiForm" 
+  component={SurveyValidasiFormScreen}
   options={{
     animation: 'slide_from_right',
     headerShown: false

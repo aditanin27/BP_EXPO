@@ -11,4 +11,5 @@ export { keluargaApi } from './keluarga'; // Add keluarga API export
 export { aktivitasApi } from './aktivitas';
 export { absenApi } from './absen';
 export { surveyApi } from './Survey';
+export {surveyValidasiApi} from './SurveyValidasi';
 export { fetchWithAuth, handleResponse, createFormData } from './utils';
