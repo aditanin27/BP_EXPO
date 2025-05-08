@@ -12,6 +12,8 @@ import keluargaReducer from './slices/keluargaSlice';
 import aktivitasReducer from './slices/aktivitasSlice';
 import absenReducer from './slices/absenSlice';
 import SurveyReducer from './slices/surveySlice';
+import SurveyValidasiReducer from './slices/surveyValidasiSlice';
+import { surveyValidasiApi } from '../api';
 
 export const store = configureStore({
   reducer: {
@@ -28,5 +30,7 @@ export const store = configureStore({
     aktivitas: aktivitasReducer,
     absen: absenReducer,
     survey: SurveyReducer,
+    surveyValidasi: SurveyValidasiReducer,
+    
   },
 });
