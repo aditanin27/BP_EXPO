@@ -11,6 +11,7 @@ import historiReducer from './slices/historiSlice';
 import keluargaReducer from './slices/keluargaSlice';
 import aktivitasReducer from './slices/aktivitasSlice';
 import absenReducer from './slices/absenSlice';
+import SurveyReducer from './slices/surveySlice';
 
 export const store = configureStore({
   reducer: {
@@ -26,5 +27,6 @@ export const store = configureStore({
     keluarga: keluargaReducer,
     aktivitas: aktivitasReducer,
     absen: absenReducer,
+    survey: SurveyReducer,
   },
 });

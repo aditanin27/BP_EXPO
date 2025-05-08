@@ -63,7 +63,10 @@ import AktivitasFormScreen from '../screens/aktivitas/AktivitasFormScreen';
 import FotoAktivitasScreen from '../screens/aktivitas/FotoAktivitasScreen';
 import AbsenScreen from '../screens/aktivitas/AbsenScreen';
 
-
+// Survey Screen
+import SurveyListScreen from '../screens/survey/SurveyListScreen';
+import SurveyFormScreen from '../screens/survey/SurveyFormScreen';
+import SurveyDetailScreen from '../screens/survey/SurveyDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -443,6 +446,31 @@ const AppNavigator = () => {
     headerShown: false
   }}
 /> 
+
+<Stack.Screen 
+  name="SurveyList" 
+  component={SurveyListScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="SurveyForm" 
+  component={SurveyFormScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
+<Stack.Screen 
+  name="SurveyDetail" 
+  component={SurveyDetailScreen}
+  options={{
+    animation: 'slide_from_right',
+    headerShown: false
+  }}
+/>
 
           </>
         )}
