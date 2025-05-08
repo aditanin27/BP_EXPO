@@ -156,6 +156,7 @@ const HomeScreen = ({ navigation }) => {
             {renderMenuIcon('👪', '#FF9500', () => navigation.navigate('KeluargaList'), 'Keluarga')}
             {renderMenuIcon('📝', '#3498db', () => navigation.navigate('AktivitasList'), 'Aktivitas')}
             {renderMenuIcon('📊', '#E74C3C', () => navigation.navigate('SurveyList'), 'Survey')}
+            {renderMenuIcon('✅', '#F39C12', () => navigation.navigate('SurveyValidasiSummary'), 'Validasi')}
           </View>
           
         </View>
